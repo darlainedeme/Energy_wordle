@@ -162,7 +162,11 @@ if st.button("Submit Guess"):
             else:
                 score += "🟥"
 
-        result_text = f"Here's my results in today #energywordle: {len(st.session_state.answers)}/5\n{score} https://energywordle.streamlit.app/"
+        if st.session_state.correct:
+            result_text = f"Here's my results in today #energywordle: {len(st.session_state.answers)}/5\n{score} https://energywordle.streamlit.app/"
+        else:
+            result_text = f"I failed today's #energywordle. The correct country was {selected_country}.\n{score} https://energywordle.streamlit.app/"
+        
         st.markdown("**Share your score:**")
         st.text_area("", result_text, height=100)
 
@@ -189,4 +193,4 @@ if st.session_state.answers:
         st.sidebar.markdown(f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%</span>", unsafe_allow_html=True)
 
 st.sidebar.markdown('---')
-st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
+st.sidebar.markdown("Developed by [D
