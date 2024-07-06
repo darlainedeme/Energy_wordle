@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import random
 import numpy as np
-import pyperclip
 
 # Load secrets
 random_mode = st.secrets["random_mode"]["mode"]
@@ -152,7 +151,7 @@ if st.button("Submit Guess"):
             st.write("Your guesses and distances were:")
             st.table(pd.DataFrame(st.session_state.answers))
         
-        # Share your score button
+        # Share your score text
         score = ""
         for answer in st.session_state.answers:
             distance = answer['distance']
@@ -164,10 +163,9 @@ if st.button("Submit Guess"):
                 score += "🟥"
 
         result_text = f"Here's my results in today #energywordle: {len(st.session_state.answers)}/5\n{score} https://energywordle.streamlit.app/"
-        if st.button("Share your score"):
-            pyperclip.copy(result_text)
-            st.success("Score copied to clipboard!")
-        
+        st.markdown("**Share your score:**")
+        st.text_area("", result_text, height=100)
+
         # Reset the game
         st.session_state.round = 0
         st.session_state.selected_country = random.choice(countries) if random_mode else fixed_country
