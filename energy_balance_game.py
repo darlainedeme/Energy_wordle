@@ -133,7 +133,7 @@ if st.button("Submit Guess"):
             'Difference (%)': share_difference
         }).reset_index(drop=True).sort_values(by='Difference (%)', ascending=False, key=abs)
         
-        fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference per Product (%)",
+        fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference in Production per Product (%)",
                               color='Product', color_discrete_sequence=color_palette, orientation='h')
         fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
         st.plotly_chart(fig_distance)
