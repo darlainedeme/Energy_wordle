@@ -151,6 +151,24 @@ if st.button("Submit Guess"):
             st.error(f"Game Over! The correct country was: {selected_country}")
             st.write("Your guesses and distances were:")
             st.table(pd.DataFrame(st.session_state.answers))
+        
+        # Share your score button
+        score = ""
+        for answer in st.session_state.answers:
+            distance = answer['distance']
+            if distance < 5:
+                score += "🟩"
+            elif distance < 15:
+                score += "🟨"
+            else:
+                score += "🟥"
+
+        result_text = f"Here's my results in today #energywordle: {len(st.session_state.answers)}/5\n{score} https://energywordle.streamlit.app/"
+        if st.button("Share your score"):
+            pyperclip.copy(result_text)
+            st.success("Score copied to clipboard!")
+        
+        # Reset the game
         st.session_state.round = 0
         st.session_state.selected_country = random.choice(countries) if random_mode else fixed_country
         st.session_state.correct = False
@@ -162,24 +180,15 @@ st.markdown('---')
 # Sidebar to display guessed countries and distances with colors
 st.sidebar.header("Guessed Countries and Distances")
 if st.session_state.answers:
-    score = ""
     for answer in st.session_state.answers:
         distance = answer['distance']
         if distance < 5:
             color = 'green'
-            score += "🟩"
         elif distance < 15:
             color = 'yellow'
-            score += "🟨"
         else:
             color = 'red'
-            score += "🟥"
         st.sidebar.markdown(f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%</span>", unsafe_allow_html=True)
-
-    if st.sidebar.button("Share your score"):
-        result_text = f"Here's my results in today #energywordle: {len(st.session_state.answers)}/5\n{score} https://energywordle.streamlit.app/"
-        pyperclip.copy(result_text)
-        st.sidebar.success("Score copied to clipboard!")
 
 st.sidebar.markdown('---')
 st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
