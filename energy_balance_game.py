@@ -62,7 +62,6 @@ Source: [IEA World Energy Balances](https://www.iea.org/data-and-statistics/data
 
 # Set default flow
 default_flow = "Production (PJ)"
-flows = np.append(flows, "Total Final Consumption (PJ)")
 
 # Flow selection dropdown
 selected_flow = st.selectbox("Select a Flow to investigate:", flows, index=list(flows).index(default_flow))
