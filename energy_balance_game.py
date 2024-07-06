@@ -193,4 +193,4 @@ if st.session_state.answers:
         st.sidebar.markdown(f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%</span>", unsafe_allow_html=True)
 
 st.sidebar.markdown('---')
-st.sidebar.markdown("Developed by [D
+st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
