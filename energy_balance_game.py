@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import random
 import numpy as np
+import pyperclip
 
 # Load secrets
 random_mode = st.secrets["random_mode"]["mode"]
@@ -58,10 +59,15 @@ Source: [IEA World Energy Balances](https://www.iea.org/data-and-statistics/data
 7. The game ends when you guess the correct country or use all 5 attempts. Good luck!
 
 ---
+
+Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)
+
+---
 """)
 
 # Set default flow
 default_flow = "Production (PJ)"
+flows = np.append(flows, "Total Final Consumption (PJ)")
 
 # Flow selection dropdown
 selected_flow = st.selectbox("Select a Flow to investigate:", flows, index=list(flows).index(default_flow))
@@ -132,7 +138,7 @@ if st.button("Submit Guess"):
             'Difference (%)': share_difference
         }).reset_index(drop=True).sort_values(by='Difference (%)', ascending=False, key=abs)
         
-        fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference in Production per Product (%)",
+        fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference per Product (%)",
                               color='Product', color_discrete_sequence=color_palette, orientation='h')
         fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
         st.plotly_chart(fig_distance)
@@ -156,15 +162,24 @@ st.markdown('---')
 # Sidebar to display guessed countries and distances with colors
 st.sidebar.header("Guessed Countries and Distances")
 if st.session_state.answers:
+    score = ""
     for answer in st.session_state.answers:
         distance = answer['distance']
         if distance < 5:
             color = 'green'
+            score += "🟩"
         elif distance < 15:
             color = 'yellow'
+            score += "🟨"
         else:
             color = 'red'
+            score += "🟥"
         st.sidebar.markdown(f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%</span>", unsafe_allow_html=True)
+
+    if st.sidebar.button("Share your score"):
+        result_text = f"Here's my results in today #energywordle: {len(st.session_state.answers)}/5\n{score} https://energywordle.streamlit.app/"
+        pyperclip.copy(result_text)
+        st.sidebar.success("Score copied to clipboard!")
 
 st.sidebar.markdown('---')
 st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
