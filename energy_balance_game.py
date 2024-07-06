@@ -69,9 +69,13 @@ selected_flow = st.selectbox("Select a Flow to investigate:", flows, index=list(
 # Filter data by the selected flow
 filtered_data = energy_data[energy_data['Flow'] == selected_flow]
 
+# Filter data for production only
+production_data = energy_data[energy_data['Flow'] == "Production (PJ)"]
+
 # Selected country and filtering data
 selected_country = st.session_state.selected_country
 country_data = filtered_data[filtered_data['Country'] == selected_country]
+production_country_data = production_data[production_data['Country'] == selected_country]
 
 # Determine the unit of measure based on the selected flow
 if selected_flow == "Electricity output (GWh)":
@@ -110,13 +114,13 @@ if st.button("Submit Guess"):
     if guess == selected_country:
         st.session_state.correct = True
     else:
-        guessed_country_data = filtered_data[filtered_data['Country'] == guess]
-        guessed_country_data = guessed_country_data.set_index('Product').reindex(country_data['Product']).fillna(0)
+        guessed_country_data = production_data[production_data['Country'] == guess]
+        guessed_country_data = guessed_country_data.set_index('Product').reindex(production_country_data['Product']).fillna(0)
         guessed_country_data['2021'] = guessed_country_data['2021'].replace(np.nan, 0)
-        country_data = country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
+        production_country_data = production_country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
         
         guessed_share = guessed_country_data['2021'] / guessed_country_data['2021'].sum()
-        correct_share = country_data['2021'] / country_data['2021'].sum()
+        correct_share = production_country_data['2021'] / production_country_data['2021'].sum()
         share_difference = (guessed_share - correct_share) * 100
         
         distance = share_difference.abs().mean()
@@ -196,4 +200,3 @@ if st.session_state.answers:
 
 st.sidebar.markdown('---')
 st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
-
