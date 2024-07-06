@@ -58,10 +58,6 @@ Source: [IEA World Energy Balances](https://www.iea.org/data-and-statistics/data
 7. The game ends when you guess the correct country or use all 5 attempts. Good luck!
 
 ---
-
-Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)
-
----
 """)
 
 # Set default flow
@@ -149,6 +145,7 @@ if st.button("Submit Guess"):
         st.write(f"Average share difference: {distance:.2f}%")
 
     if st.session_state.round == 5 or st.session_state.correct:
+        attempts = st.session_state.round if st.session_state.correct else 5
         if st.session_state.correct:
             st.success(f"Congratulations! You guessed the correct country: {selected_country}")
         else:
@@ -168,7 +165,7 @@ if st.button("Submit Guess"):
                 score += "🟥"
 
         if st.session_state.correct:
-            result_text = f"Here's my results in today #energywordle: {len(st.session_state.answers)}/5\n{score} https://energywordle.streamlit.app/"
+            result_text = f"Here's my results in today #energywordle: {attempts}/5\n{score} https://energywordle.streamlit.app/"
         else:
             result_text = f"I failed today's #energywordle. The correct country was {selected_country}.\n{score} https://energywordle.streamlit.app/"
         
@@ -195,4 +192,8 @@ if st.session_state.answers:
             color = 'yellow'
         else:
             color = 'red'
-        st.sidebar
+        st.sidebar.markdown(f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%</span>", unsafe_allow_html=True)
+
+st.sidebar.markdown('---')
+st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
+
