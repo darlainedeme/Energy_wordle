@@ -66,7 +66,6 @@ Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)
 
 # Set default flow
 default_flow = "Production (PJ)"
-flows = np.append(flows, "Total Final Consumption (PJ)")
 
 # Flow selection dropdown
 selected_flow = st.selectbox("Select a Flow to investigate:", flows, index=list(flows).index(default_flow))
@@ -78,9 +77,15 @@ filtered_data = energy_data[energy_data['Flow'] == selected_flow]
 selected_country = st.session_state.selected_country
 country_data = filtered_data[filtered_data['Country'] == selected_country]
 
+# Determine the unit of measure based on the selected flow
+if selected_flow == "Electricity output (GWh)":
+    unit_of_measure = "GWh"
+else:
+    unit_of_measure = "PJ"
+
 # Display total value for the country
 total_value = country_data['2021'].sum()
-st.subheader(f"Total value for all products: {round(total_value, 2)} PJ")
+st.subheader(f"Total value for all products: {round(total_value, 2)} {unit_of_measure}")
 
 st.markdown("""
 ### Energy Balance Treemap
@@ -165,7 +170,7 @@ if st.button("Submit Guess"):
         if st.session_state.correct:
             result_text = f"Here's my results in today #energywordle: {len(st.session_state.answers)}/5\n{score} https://energywordle.streamlit.app/"
         else:
-            result_text = f"I failed today's #energywordle. Can you make it?\n{score} https://energywordle.streamlit.app/"
+            result_text = f"I failed today's #energywordle. The correct country was {selected_country}.\n{score} https://energywordle.streamlit.app/"
         
         st.markdown("**Share your score:**")
         st.text_area("", result_text, height=100)
@@ -190,7 +195,4 @@ if st.session_state.answers:
             color = 'yellow'
         else:
             color = 'red'
-        st.sidebar.markdown(f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%</span>", unsafe_allow_html=True)
-
-st.sidebar.markdown('---')
-st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
+        st.sidebar
