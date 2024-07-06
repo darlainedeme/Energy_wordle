@@ -168,6 +168,8 @@ if st.button("Submit Guess"):
             else:
                 score += "🟥"
 
+        if attempts == 1:
+            score += "🟩"
         if st.session_state.correct:
             result_text = f"Here's my results in today #energywordle: {attempts}/5\n{score} https://energywordle.streamlit.app/"
         else:
