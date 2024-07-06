@@ -57,7 +57,7 @@ Source: [IEA World Energy Balances](https://www.iea.org/data-and-statistics/data
    - Red for far (average share difference > 15%)
 7. The game ends when you guess the correct country or use all 5 attempts. Good luck!
 
-
+---
 """)
 
 # Set default flow
