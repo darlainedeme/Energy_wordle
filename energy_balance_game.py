@@ -66,11 +66,17 @@ default_flow = "Production (PJ)"
 # Flow selection dropdown
 selected_flow = st.selectbox("Select a Flow to investigate:", flows, index=list(flows).index(default_flow))
 
+# Determine the unit of measure based on the selected flow
+if selected_flow == "Electricity output (GWh)":
+    unit_of_measure = "GWh"
+else:
+    unit_of_measure = "PJ"
+
 # Filter data by the selected flow
 filtered_data = energy_data[energy_data['Flow'] == selected_flow]
 
 # Filter data for total final consumption only
-tfc_data = energy_data[energy_data['Flow'] == "Total final consumption (PJ)"]
+tfc_data = energy_data[energy_data['Flow'] == "Total Final Consumption (PJ)"]
 
 # Selected country and filtering data
 selected_country = st.session_state.selected_country
