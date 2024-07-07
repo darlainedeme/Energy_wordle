@@ -176,11 +176,11 @@ def main_game():
                     product = row['Product']
                     diff = row['Difference (%)']
                     if diff != 0:
-                        if diff > 0
-                        explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
-                    else:
-                        explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
-                    explanations.append((diff, explanation, product))
+                        if diff > 0:
+                            explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
+                        else:
+                            explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
+                        explanations.append((diff, explanation, product))
 
                 # Sort explanations by absolute difference in descending order
                 explanations.sort(key=lambda x: abs(x[0]), reverse=True)
@@ -190,51 +190,51 @@ def main_game():
                         product_color = color_palette[product]
                         st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
 
-        if st.session_state.round == 5 or st.session_state.correct:
-            if st.session_state.correct:
-                st.success(f"Congratulations! You guessed the correct country: {selected_country}")
+    if st.session_state.round == 5 or st.session_state.correct:
+        if st.session_state.correct:
+            st.success(f"Congratulations! You guessed the correct country: {selected_country}")
+        else:
+            st.error(f"Game Over! The correct country was: {selected_country}")
+            st.write("Your guesses and distances were:")
+            st.table(pd.DataFrame(st.session_state.answers))
+
+        # Provide links to learn more about the countries involved in the game
+        countries_involved = [selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != selected_country]
+        country_links = []
+        for country in countries_involved:
+            country_url = country.lower().replace(" ", "-")
+            if "turkiye" in country_url:
+                country_url = "turkiye"
+            elif "china" in country_url:
+                country_url = "china"
+            country_links.append(f"[{country}](https://www.iea.org/countries/{country_url})")
+        st.markdown("### Learn more about these countries' energy sectors:")
+        st.markdown(", ".join(country_links))
+        
+        # Share your score text
+        score = ""
+        for answer in st.session_state.answers:
+            distance = answer['distance']
+            if distance < 5:
+                score += "🟩"
+            elif distance < 15:
+                score += "🟨"
             else:
-                st.error(f"Game Over! The correct country was: {selected_country}")
-                st.write("Your guesses and distances were:")
-                st.table(pd.DataFrame(st.session_state.answers))
+                score += "🟥"
 
-            # Provide links to learn more about the countries involved in the game
-            countries_involved = [selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != selected_country]
-            country_links = []
-            for country in countries_involved:
-                country_url = country.lower().replace(" ", "-")
-                if "turkiye" in country_url:
-                    country_url = "turkiye"
-                elif "china" in country_url:
-                    country_url = "china"
-                country_links.append(f"[{country}](https://www.iea.org/countries/{country_url})")
-            st.markdown("### Learn more about these countries' energy sectors:")
-            st.markdown(", ".join(country_links))
-            
-            # Share your score text
-            score = ""
-            for answer in st.session_state.answers:
-                distance = answer['distance']
-                if distance < 5:
-                    score += "🟩"
-                elif distance < 15:
-                    score += "🟨"
-                else:
-                    score += "🟥"
+        if st.session_state.correct:
+            if st.session_state.round == 1:
+                score = "🟩"
+            result_text = f"Here's my results in today #energywordle: {st.session_state.round}/5\n{score} https://energywordle.streamlit.app/"
+        else:
+            result_text = f"I failed at today's energy wordle, can you make it?\n{score} https://energywordle.streamlit.app/"
+        
+        st.markdown("**Share your score:**")
+        st.text_area("", result_text, height=100)
 
-            if st.session_state.correct:
-                result_text = f"Here's my results in today #energywordle: {st.session_state.round}/5\n{score} 🟩 https://energywordle.streamlit.app/"
-            else:
-                result_text = f"I failed at today's energy wordle, can you make it?\n{score} https://energywordle.streamlit.app/"
-            
-            st.markdown("**Share your score:**")
-            st.text_area("", result_text, height=100)
-
-            st.markdown("Want to explore the results? Click on the top left 'Explore the Results'.")
-            st.markdown("Come back next Tuesday morning for the next match! In the meantime, explore your results.")
-            
-            # Disable further interaction by hiding the submit button and dropdown
-            st.session_state.round = 6  # Set a flag to indicate the game is over
+        st.markdown("Want to explore the results? Click on the top left 'Explore the Results'.")
+        
+        st.write("Come back next Tuesday morning for the next match. In the meantime, explore your results.")
 
 # Explore results page
 def explore_results():
@@ -245,7 +245,7 @@ def explore_results():
 
     # Add an empty bar for visual separation
     countries_involved.insert(1, " ")
-
+    
     # Dropdown menu to select flow for final charts
     selected_flow_final = st.selectbox(
         "Select a Flow for final charts:",
@@ -268,7 +268,7 @@ def explore_results():
 
     # Add empty rows for each product
     empty_rows = pd.DataFrame({
-        "Country": [" "] * len(unique_products),
+        "Country": ["_"] * len(unique_products),
         "Flow": [selected_flow_final] * len(unique_products),
         "Product": unique_products,
         "2021": [0] * len(unique_products)
@@ -335,7 +335,7 @@ if st.session_state.answers:
             color = '🟨'
         else:
             color = '🟥'
-        sidebar_text = f"{color} {answer['guess']}: {distance:.2f}%"
+        sidebar_text = f"{color} {answer['guess']}"
         st.sidebar.markdown(sidebar_text)
 
 st.sidebar.markdown('---')
