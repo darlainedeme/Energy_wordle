@@ -224,7 +224,7 @@ if st.button("Submit Guess"):
         st.text_area("", result_text, height=100)
 
         # Dropdown menu to select flow for final charts
-        selected_flow_final = st.selectbox("Select a Flow for final charts:", flows, index=list(flows).index(st.session_state.final_flow))
+        selected_flow_final = st.selectbox("Select a Flow for final charts:", flows, index=list(flows).index(st.session_state.final_flow), key='final_flow')
 
         # Prevent page refresh on final chart flow selection
         st.session_state.final_flow = selected_flow_final
