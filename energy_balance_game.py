@@ -242,6 +242,20 @@ def explore_results():
     empty_bar = pd.DataFrame({"Country": [""]})
     countries_involved.insert(1, "")
 
+    # Define the color palette
+    color_palette = {
+        "Coal, peat and oil shale": "#4B5320",
+        "Crude, NGL and feedstocks": "#A52A2A",
+        "Oil products": "#FF8C00",
+        "Natural gas": "#1E90FF",
+        "Nuclear": "#FFD700",
+        "Renewables and waste": "#32CD32",
+        "Electricity": "#9400D3",
+        "Heat": "#FF4500",
+        "Fossil fuels": "#708090",
+        "Renewable sources": "#00FA9A"
+    }
+
     # Dropdown menu to select flow for final charts
     selected_flow_final = st.selectbox(
         "Select a Flow for final charts:",
