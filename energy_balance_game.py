@@ -267,7 +267,7 @@ def explore_results():
 
     # Add empty rows for each product
     empty_rows = pd.DataFrame({
-        "Country": ["_"] * len(unique_products),
+        "Country": [" "] * len(unique_products),
         "Flow": [selected_flow_final] * len(unique_products),
         "Product": unique_products,
         "2021": [0] * len(unique_products)
