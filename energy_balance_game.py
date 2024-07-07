@@ -29,16 +29,13 @@ def send_email(to_emails, subject, content):
     # Attach the content
     msg.attach(MIMEText(content, 'plain'))
 
-    try:
-        # Send the email
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.send_message(msg)
-        server.quit()
-        st.sidebar.success("Game summary sent successfully!")
-    except Exception as e:
-        st.sidebar.error(f"An error occurred while sending the email: {e}")
+    # Send the email
+    server = smtplib.SMTP(smtp_server, smtp_port)
+    server.starttls()
+    server.login(smtp_user, smtp_password)
+    server.send_message(msg)
+    server.quit()
+    st.sidebar.success("Game summary sent successfully!")
 
 # Load the CSV file
 file_path = 'WorldEnergyBalancesHighlights2023.csv'
