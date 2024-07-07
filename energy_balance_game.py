@@ -63,7 +63,7 @@ with st.expander("How to Play", expanded=True):
        - Green for close (average share difference < 5%)
        - Yellow for moderate (average share difference between 5% and 15%)
        - Red for far (average share difference > 15%)
-    7. If you reach the 4th attempt, you will have the possibility to ask for a hint. This hint will show the distances in kilometers between the countries you have selected and the target country. The hint stays active until the end of the game.
+    7. If you reach the 3rd attempt, you will have the possibility to ask for a hint. This hint will show the distances in kilometers between the countries you have selected and the target country. The hint stays active until the end of the game.
     8. The game ends when you guess the correct country or use all 5 attempts. Good luck!
     """)
 
