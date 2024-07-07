@@ -253,9 +253,6 @@ def explore_results():
         key='final_flow_selectbox'
     )
 
-    final_filtered_data = energy_data[energy_data['Flow'] == selected_flow_final]
-    final_filtered_data
-
     # Prepare data for final charts
     final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
     final_chart_data['Country'] = pd.Categorical(final_chart_data['Country'], categories=countries_involved, ordered=True)
@@ -267,6 +264,8 @@ def explore_results():
     empty_row = pd.DataFrame({"Country": [""], "Flow": [selected_flow_final], "Product": [""], "2021": [0]})
     final_chart_data = pd.concat([final_chart_data.iloc[:1], empty_row, final_chart_data.iloc[1:]]).reset_index(drop=True)
 
+    final_chart_data
+    
     # Define the color palette
     color_palette = {
         "Coal, peat and oil shale": "#4B5320",
