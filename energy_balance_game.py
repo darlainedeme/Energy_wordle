@@ -254,6 +254,7 @@ def main_game():
                     for _, row in distance_data.iterrows():
                         product = row['Product']
                         diff = row['Difference (%)']
+                        guessed_country_name = guess  # Use the actual guessed country name
                         if diff != 0:
                             if diff > 0:
                                 explanation = f"{guessed_country_name} has a share of **{product}** in production that is **{abs(diff):.2f}% higher** than the target country."
