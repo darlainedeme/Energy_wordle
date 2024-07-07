@@ -79,7 +79,7 @@ def send_game_summary():
     username = st.session_state.username
     start_time = st.session_state.start_time
     end_time = st.session_state.end_time
-    delta_seconds = (end_time - start_time).total_seconds() if start_time and end_time else "Unknown"
+    delta_seconds = round((end_time - start_time).total_seconds() if start_time and end_time else "Unknown")
     answers = st.session_state.answers
     selected_country = st.session_state.selected_country
     
@@ -87,7 +87,7 @@ def send_game_summary():
     summary += f"Game duration: {delta_seconds} seconds\n"
     summary += "Results:\n"
     for answer in answers:
-        summary += f"Round {answers.index(answer) + 1}: {answer['guess']} with {answer['distance']:.2f}% difference\n"
+        summary += f"Round {answers.index(answer) + 1}: {answer['guess']}\n"
     summary += f"Correct Country: {selected_country}\n"
     
     send_email([smtp_user], "Energy Wordle Game Summary", summary)
