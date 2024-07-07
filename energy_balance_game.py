@@ -77,14 +77,14 @@ def reset_game():
 # Function to handle the email sending
 def send_game_summary():
     username = st.session_state.username
-    start_time = st.session_state.start_time.strftime("%Y-%m-%d %H:%M:%S") if st.session_state.start_time else "Unknown"
-    end_time = st.session_state.end_time.strftime("%Y-%m-%d %H:%M:%S") if st.session_state.end_time else "Unknown"
+    start_time = st.session_state.start_time
+    end_time = st.session_state.end_time
+    delta_seconds = (end_time - start_time).total_seconds() if start_time and end_time else "Unknown"
     answers = st.session_state.answers
     selected_country = st.session_state.selected_country
     
     summary = f"Player: {username}\n"
-    summary += f"Started at: {start_time}\n"
-    summary += f"Ended at: {end_time}\n"
+    summary += f"Game duration: {delta_seconds} seconds\n"
     summary += "Results:\n"
     for answer in answers:
         summary += f"Round {answers.index(answer) + 1}: {answer['guess']} with {answer['distance']:.2f}% difference\n"
