@@ -239,20 +239,6 @@ def explore_results():
     # Collect involved countries
     countries_involved = [st.session_state.selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != st.session_state.selected_country]
 
-    # Define the color palette
-    color_palette = {
-        "Coal, peat and oil shale": "#4B5320",
-        "Crude, NGL and feedstocks": "#A52A2A",
-        "Oil products": "#FF8C00",
-        "Natural gas": "#1E90FF",
-        "Nuclear": "#FFD700",
-        "Renewables and waste": "#32CD32",
-        "Electricity": "#9400D3",
-        "Heat": "#FF4500",
-        "Fossil fuels": "#708090",
-        "Renewable sources": "#00FA9A"
-    }
-    
     # Add an empty bar for visual separation
     countries_involved.insert(1, "")
     
@@ -273,8 +259,22 @@ def explore_results():
     final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
     final_chart_data['Country'] = pd.Categorical(final_chart_data['Country'], categories=countries_involved, ordered=True)
 
-    # Verify the order in final_chart_data
-    st.write(final_chart_data[['Country', '2021']])
+    # Reorder the dataframe based on the categorical order
+    final_chart_data = final_chart_data.sort_values(by='Country')
+
+    # Define the color palette
+    color_palette = {
+        "Coal, peat and oil shale": "#4B5320",
+        "Crude, NGL and feedstocks": "#A52A2A",
+        "Oil products": "#FF8C00",
+        "Natural gas": "#1E90FF",
+        "Nuclear": "#FFD700",
+        "Renewables and waste": "#32CD32",
+        "Electricity": "#9400D3",
+        "Heat": "#FF4500",
+        "Fossil fuels": "#708090",
+        "Renewable sources": "#00FA9A"
+    }
 
     # Stacked bar chart for total values
     fig_stacked = px.bar(final_chart_data, x='Country', y='2021', color='Product', title="Total Values by Country",
