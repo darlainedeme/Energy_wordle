@@ -171,12 +171,12 @@ def main_game():
         filtered_data = energy_data[energy_data['Flow'] == selected_flow]
 
         # Filter data for total final consumption only
-        tfc_data = energy_data[energy_data['Flow'] == "Production (PJ)"]
+        filter_data = energy_data[energy_data['Flow'] == "Production (PJ)"]
 
         # Selected country and filtering data
         selected_country = st.session_state.selected_country
         country_data = filtered_data[filtered_data['Country'] == selected_country]
-        tfc_country_data = tfc_data[tfc_data['Country'] == selected_country]
+        filter_country_data = filter_data[filter_data['Country'] == selected_country]
 
         # Define the color palette
         color_palette = {
@@ -216,13 +216,13 @@ def main_game():
                 if guess == selected_country:
                     st.session_state.correct = True
                 else:
-                    guessed_country_data = tfc_data[tfc_data['Country'] == guess]
-                    guessed_country_data = guessed_country_data.set_index('Product').reindex(tfc_country_data['Product']).fillna(0)
+                    guessed_country_data = filter_data[filter_data['Country'] == guess]
+                    guessed_country_data = guessed_country_data.set_index('Product').reindex(filter_country_data['Product']).fillna(0)
                     guessed_country_data['2021'] = guessed_country_data['2021'].replace(np.nan, 0)
-                    tfc_country_data = tfc_country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
+                    filter_country_data = filter_country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
 
                     guessed_share = guessed_country_data['2021'] / guessed_country_data['2021'].sum()
-                    correct_share = tfc_country_data['2021'] / tfc_country_data['2021'].sum()
+                    correct_share = filter_country_data['2021'] / filter_country_data['2021'].sum()
                     share_difference = (guessed_share - correct_share) * 100
 
                     distance = share_difference.abs().mean()
@@ -235,7 +235,7 @@ def main_game():
                     st.write(f"Shares for {guess} vs Correct Shares:")
 
                     st.markdown("""
-                    The bar chart below shows the percentage difference for each product between your guessed country and the correct country. This will help you understand how close your guess was and refine your next guess.
+                    The bar chart below shows the production percentage difference for each product between your guessed country and the correct country. This will help you understand how close your guess was and refine your next guess.
                     """)
 
                     # Display horizontal bar chart with differences sorted by absolute difference
@@ -256,25 +256,25 @@ def main_game():
                         diff = row['Difference (%)']
                         if diff != 0:
                             if diff > 0:
-                                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
+                                explanation = f"The country you selected has a share of **{product}** in production that is **{abs(diff):.2f}% higher** than the target country."
                                 if abs(diff) < 5:
                                     explanation += " You were very close on this product."
                                 elif 5 <= abs(diff) < 15:
-                                    explanation += " You are looking for a country that consumes slightly more of this product."
+                                    explanation += " You are looking for a country that produces slightly more of this product."
                                 elif 15 <= abs(diff) < 30:
-                                    explanation += " You are looking for a country that consumes more of this product."
+                                    explanation += " You are looking for a country that produces more of this product."
                                 else:
-                                    explanation += " You are looking for a country that consumes much more of this product."
+                                    explanation += " You are looking for a country that produces much more of this product."
                             else:
-                                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
+                                explanation = f"The country you selected has a share of **{product}** in production that is **{abs(diff):.2f}% lower** than the target country."
                                 if abs(diff) < 5:
                                     explanation += " You were very close on this product."
                                 elif 5 <= abs(diff) < 15:
-                                    explanation += " You are looking for a country that consumes slightly less of this product."
+                                    explanation += " You are looking for a country that produces slightly less of this product."
                                 elif 15 <= abs(diff) < 30:
-                                    explanation += " You are looking for a country that consumes less of this product."
+                                    explanation += " You are looking for a country that produces less of this product."
                                 else:
-                                    explanation += " You are looking for a country that consumes much less of this product."
+                                    explanation += " You are looking for a country that produces much less of this product."
                             explanations.append((diff, explanation, product))
 
                     # Sort explanations by absolute difference in descending order
