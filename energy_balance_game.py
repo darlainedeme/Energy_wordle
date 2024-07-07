@@ -25,6 +25,10 @@ st.markdown(
 smtp_user = st.secrets["smtp_user"]
 smtp_password = st.secrets["smtp_password"]
 
+# Load game mode
+random_mode = st.secrets["random_mode"]
+fixed_country = st.secrets["fixed_country"]
+
 def send_email(to_emails, subject, content):
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
@@ -59,7 +63,6 @@ energy_data['2021'] = pd.to_numeric(energy_data['2021'], errors='coerce')
 flows = energy_data['Flow'].unique()
 countries = sorted(energy_data['Country'].unique())
 
-# Initialize session state
 if 'username' not in st.session_state:
     st.session_state.username = ""
 if 'start_time' not in st.session_state:
@@ -69,7 +72,7 @@ if 'end_time' not in st.session_state:
 if 'round' not in st.session_state:
     st.session_state.round = 0
 if 'selected_country' not in st.session_state:
-    st.session_state.selected_country = random.choice(countries)
+    st.session_state.selected_country = random.choice(countries) if random_mode else fixed_country
 if 'correct' not in st.session_state:
     st.session_state.correct = False
 if 'answers' not in st.session_state:
@@ -80,11 +83,12 @@ if 'final_flow' not in st.session_state:
 # Function to reset the game state
 def reset_game():
     st.session_state.round = 0
-    st.session_state.selected_country = random.choice(countries)
+    st.session_state.selected_country = random.choice(countries) if random_mode else fixed_country
     st.session_state.correct = False
     st.session_state.answers = []
     st.session_state.start_time = None
     st.session_state.end_time = None
+
 
 # Function to handle the email sending
 def send_game_summary():
