@@ -230,9 +230,7 @@ def main_game():
             st.markdown("**Share your score:**")
             st.text_area("", result_text, height=100)
 
-            # Button to explore the results
-            if st.button("Explore the Results"):
-                st.session_state.explore_results = True
+            st.markdown("Want to explore the results? Click on the top left 'Explore the Results'.")
 
 # Explore results page
 def explore_results():
@@ -277,8 +275,10 @@ def explore_results():
     st.markdown("### Learn more about these countries' energy sectors:")
     st.markdown(", ".join(country_links))
 
-# Check if the game has ended and the user wants to explore the results
-if 'explore_results' in st.session_state and st.session_state.explore_results:
+# Sidebar navigation
+nav_option = st.sidebar.radio("Navigation", ["Play Game", "Explore the Results"])
+
+if nav_option == "Explore the Results":
     explore_results()
 else:
     main_game()
