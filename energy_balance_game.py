@@ -344,6 +344,7 @@ def explore_results():
     # Collect involved countries
     countries_involved = [st.session_state.selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != st.session_state.selected_country]
     countries_involved = list(set(countries_involved))
+    st.write(countries_involved)
     
     # Add an empty bar for visual separation
     countries_involved.insert(1, " ")
