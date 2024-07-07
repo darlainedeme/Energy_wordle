@@ -76,7 +76,7 @@ else:
 filtered_data = energy_data[energy_data['Flow'] == selected_flow]
 
 # Filter data for total final consumption only
-tfc_data = energy_data[energy_data['Flow'] == "Total Final Consumption (PJ)"]
+tfc_data = energy_data[energy_data['Flow'] == "Total final consumption (PJ)"]
 
 # Selected country and filtering data
 selected_country = st.session_state.selected_country
