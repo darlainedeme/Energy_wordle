@@ -262,6 +262,10 @@ def explore_results():
     # Reorder the dataframe based on the categorical order
     final_chart_data = final_chart_data.sort_values(by='Country')
 
+    # Add a row for the empty bar
+    empty_row = pd.DataFrame({"Country": [""], "Flow": [selected_flow_final], "Product": [""], "2021": [0]})
+    final_chart_data = pd.concat([final_chart_data, empty_row], ignore_index=True)
+
     # Define the color palette
     color_palette = {
         "Coal, peat and oil shale": "#4B5320",
