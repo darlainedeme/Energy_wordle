@@ -9,13 +9,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 
-# Email sending feature
-smtp_user = os.environ.get('smtp_user')
-smtp_password = os.environ.get('smtp_password')
+# Load secrets
+smtp_user = st.secrets["smtp_user"]
+smtp_password = st.secrets["smtp_password"]
 
 # Debugging code to print the environment variables (remove or comment out before deploying)
-write(f"smtp_user: {smtp_user}")
-write(f"smtp_password: {smtp_password}")
+st.write(f"smtp_user: {smtp_user}")
+st.write(f"smtp_password: {smtp_password}")
 
 def send_email(to_emails, subject, content):
     smtp_server = "smtp.gmail.com"
@@ -33,13 +33,16 @@ def send_email(to_emails, subject, content):
     # Attach the content
     msg.attach(MIMEText(content, 'plain'))
 
-    # Send the email
-    server = smtplib.SMTP(smtp_server, smtp_port)
-    server.starttls()
-    server.login(smtp_user, smtp_password)
-    server.send_message(msg)
-    server.quit()
-    st.sidebar.success("Game summary sent successfully!")
+    try:
+        # Send the email
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        st.sidebar.success("Game summary sent successfully!")
+    except Exception as e:
+        st.sidebar.error(f"An error occurred while sending the email: {e}")
 
 # Load the CSV file
 file_path = 'WorldEnergyBalancesHighlights2023.csv'
