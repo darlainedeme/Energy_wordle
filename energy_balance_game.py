@@ -42,7 +42,7 @@ def reset_game():
 def main_game():
     st.title("Weekly Energy Balance Guessing Game")
 
-    with st.expander("About the Data", expanded=True):
+    with st.expander("About the Data", expanded=False):
         st.markdown("""
         The World Energy Balances online data service contains energy balances for 156 countries and 35 regional aggregates. 
         The figures are expressed in thousand tonnes of oil equivalent (ktoe) and in terajoules. Conversion factors used to calculate energy balances and indicators 
