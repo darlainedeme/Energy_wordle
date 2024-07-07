@@ -270,9 +270,9 @@ def main_game():
                 st.success(f"Congratulations! You guessed the correct country: {selected_country}")
             else:
                 st.error(f"Game Over! The correct country was: {selected_country}")
-                st.write("Your guesses and distances were:")
-                st.table(pd.DataFrame(st.session_state.answers))
 
+            st.markdown("Want to explore the results? Click on the top left 'Explore the Results'.")
+            
             # Record end time
             st.session_state.end_time = datetime.now()
 
@@ -310,8 +310,6 @@ def main_game():
             st.markdown("**Share your score:**")
             st.text_area("", result_text, height=100)
 
-            st.markdown("Want to explore the results? Click on the top left 'Explore the Results'.")
-            
             st.write("Come back next Tuesday morning for the next match. In the meantime, explore your results.")
             
             # Send game summary email
