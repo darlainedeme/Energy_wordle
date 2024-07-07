@@ -199,7 +199,7 @@ def main_game():
                 st.table(pd.DataFrame(st.session_state.answers))
 
             # Provide links to learn more about the countries involved in the game
-            countries_involved = [selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers)]
+            countries_involved = [selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != selected_country]
             country_links = []
             for country in countries_involved:
                 country_url = country.lower().replace(" ", "-")
@@ -236,8 +236,12 @@ def main_game():
 def explore_results():
     st.title("Explore the Results")
 
-    countries_involved = [st.session_state.selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers)]
-    
+    countries_involved = [st.session_state.selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != st.session_state.selected_country]
+
+    # Add an empty bar for visual separation
+    empty_bar = pd.DataFrame({"Country": [""]})
+    countries_involved.insert(1, "")
+
     # Dropdown menu to select flow for final charts
     selected_flow_final = st.selectbox(
         "Select a Flow for final charts:",
@@ -251,20 +255,6 @@ def explore_results():
     # Prepare data for final charts
     final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
     final_chart_data['Country'] = pd.Categorical(final_chart_data['Country'], categories=countries_involved, ordered=True)
-
-    # Define the color palette
-    color_palette = {
-        "Coal, peat and oil shale": "#4B5320",
-        "Crude, NGL and feedstocks": "#A52A2A",
-        "Oil products": "#FF8C00",
-        "Natural gas": "#1E90FF",
-        "Nuclear": "#FFD700",
-        "Renewables and waste": "#32CD32",
-        "Electricity": "#9400D3",
-        "Heat": "#FF4500",
-        "Fossil fuels": "#708090",
-        "Renewable sources": "#00FA9A"
-    }
 
     # Stacked bar chart for total values
     fig_stacked = px.bar(final_chart_data, x='Country', y='2021', color='Product', title="Total Values by Country",
@@ -280,12 +270,13 @@ def explore_results():
     # Provide links to learn more about the countries involved in the game
     country_links = []
     for country in countries_involved:
-        country_url = country.lower().replace(" ", "-")
-        if "turkiye" in country_url:
-            country_url = "turkiye"
-        elif "china" in country_url:
-            country_url = "china"
-        country_links.append(f"[{country}](https://www.iea.org/countries/{country_url})")
+        if country != "":
+            country_url = country.lower().replace(" ", "-")
+            if "turkiye" in country_url:
+                country_url = "turkiye"
+            elif "china" in country_url:
+                country_url = "china"
+            country_links.append(f"[{country}](https://www.iea.org/countries/{country_url})")
     st.markdown("### Learn more about these countries' energy sectors:")
     st.markdown(", ".join(country_links))
 
@@ -293,24 +284,26 @@ def explore_results():
 nav_option = st.sidebar.radio("Navigation", ["Play Game", "Explore the Results"])
 
 if nav_option == "Explore the Results":
-    explore_results()
+    if st.session_state.round < 5 and not st.session_state.correct:
+        st.warning("Go back to the game and once you've finished it, come here to explore the results.")
+    else:
+        explore_results()
 else:
     main_game()
 
-# Sidebar to display guessed countries and distances with colors
+# Sidebar to display guessed countries and distances with colored squares
 st.sidebar.header("Guessed Countries and Distances")
 if st.session_state.answers:
     for answer in st.session_state.answers:
         distance = answer['distance']
         if distance < 5:
-            color = 'green'
+            color = '🟩'
         elif distance < 15:
-            color = 'yellow'
+            color = '🟨'
         else:
-            color = 'red'
-        sidebar_text = f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%"
-        sidebar_text += "</span>"
-        st.sidebar.markdown(sidebar_text, unsafe_allow_html=True)
+            color = '🟥'
+        sidebar_text = f"{color} {answer['guess']}: {distance:.2f}%"
+        st.sidebar.markdown(sidebar_text)
 
 st.sidebar.markdown('---')
 st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
