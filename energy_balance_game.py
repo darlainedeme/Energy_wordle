@@ -9,17 +9,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 
-st.write(st.secrets)
-
-
 # Load secrets
 smtp_user = st.secrets["smtp_user"]
 smtp_password = st.secrets["smtp_password"]
-
-
-# Debugging code to print the environment variables (remove or comment out before deploying)
-st.write(f"smtp_user: {smtp_user}")
-st.write(f"smtp_password: {smtp_password}")
 
 def send_email(to_emails, subject, content):
     smtp_server = "smtp.gmail.com"
