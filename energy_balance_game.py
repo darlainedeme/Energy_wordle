@@ -262,9 +262,9 @@ def explore_results():
     # Reorder the dataframe based on the categorical order
     final_chart_data = final_chart_data.sort_values(by='Country')
 
-    # Add a row for the empty bar
+    # Add a row for the empty bar at the second position
     empty_row = pd.DataFrame({"Country": [""], "Flow": [selected_flow_final], "Product": [""], "2021": [0]})
-    final_chart_data = pd.concat([final_chart_data, empty_row], ignore_index=True)
+    final_chart_data = pd.concat([final_chart_data.iloc[:1], empty_row, final_chart_data.iloc[1:]]).reset_index(drop=True)
 
     # Define the color palette
     color_palette = {
