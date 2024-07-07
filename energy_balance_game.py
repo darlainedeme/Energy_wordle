@@ -206,7 +206,7 @@ def main_game():
         if st.session_state.round < 5 and not st.session_state.correct:
             # Guessing section
             st.write(f"Round {st.session_state.round + 1} of 5")
-            guess = st.selectbox("Guess the Country:", [country for country in countries if country not in [answer['guess'] for answer in st.session_state.answers]])
+            guess = st.selectbox("Guess the Country:", [country for country in countries])
             if st.button("Submit Guess"):
                 st.session_state.round += 1
                 if guess == selected_country:
