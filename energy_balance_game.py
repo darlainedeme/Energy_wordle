@@ -8,12 +8,9 @@ import numpy as np
 random_mode = st.secrets["random_mode"]["mode"]
 fixed_country = st.secrets["fixed_country"]["name"]
 
-# Load the CSV files
+# Load the CSV file
 file_path = 'WorldEnergyBalancesHighlights2023.csv'
 energy_data = pd.read_csv(file_path)
-
-distance_matrix_path = 'distance-matrix.csv'
-distance_matrix = pd.read_csv(distance_matrix_path, index_col=0)
 
 # Convert the '2021' column to numeric, errors='coerce' will replace non-convertible values with NaN
 energy_data['2021'] = pd.to_numeric(energy_data['2021'], errors='coerce')
@@ -31,8 +28,6 @@ if 'correct' not in st.session_state:
     st.session_state.correct = False
 if 'answers' not in st.session_state:
     st.session_state.answers = []
-if 'hints_used' not in st.session_state:
-    st.session_state.hints_used = False
 
 # Title and description
 st.title("Energy Balance Guessing Game")
@@ -63,8 +58,7 @@ with st.expander("How to Play", expanded=True):
        - Green for close (average share difference < 5%)
        - Yellow for moderate (average share difference between 5% and 15%)
        - Red for far (average share difference > 15%)
-    7. If you reach the 3rd attempt, you will have the possibility to ask for a hint. This hint will show the distances in kilometers between the countries you have selected and the target country. The hint stays active until the end of the game.
-    8. The game ends when you guess the correct country or use all 5 attempts. Good luck!
+    7. The game ends when you guess the correct country or use all 5 attempts. Good luck!
     """)
 
 # Set default flow
@@ -186,20 +180,6 @@ if st.button("Submit Guess"):
                 product_color = color_palette[product]
                 st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
 
-        # Offer hint if on the 3rd, 4th, or 5th attempt and hint not yet used
-        if (st.session_state.round >= 3 and st.session_state.round <= 5) and not st.session_state.hints_used:
-            if st.button("Use Hint"):
-                st.session_state.hints_used = True
-                hint_message = "Distance to the correct country from your guesses:\n"
-                for answer in st.session_state.answers:
-                    guess_iso = energy_data[energy_data['Country'] == answer['guess']]['ISO'].values[0]
-                    correct_iso = energy_data[energy_data['Country'] == selected_country]['ISO'].values[0]
-                    distance = distance_matrix.loc[guess_iso, correct_iso]
-                    hint_message += f"{answer['guess']} to {selected_country}: {distance:.1f} km\n"
-                    # Append distance to the sidebar guesses
-                    st.session_state.answers[-1]['distance_km'] = distance
-                st.write(hint_message)
-
     if st.session_state.round == 5 or st.session_state.correct:
         attempts = st.session_state.round if st.session_state.correct else 5
         if st.session_state.correct:
@@ -209,14 +189,19 @@ if st.button("Submit Guess"):
             st.write("Your guesses and distances were:")
             st.table(pd.DataFrame(st.session_state.answers))
         
-        # Provide link to learn more about the country's energy sector
-        country_url = selected_country.lower().replace(" ", "-")
-        if "turkiye" in country_url:
-            country_url = "turkiye"
-        elif "china" in country_url:
-            country_url = "china"
-        st.markdown(f"[Do you want to learn more about {selected_country}'s energy sector? Visit the IEA website](https://www.iea.org/countries/{country_url})")
-
+        # Provide links to learn more about the countries involved in the game
+        countries_involved = list({selected_country}.union({answer['guess'] for answer in st.session_state.answers}))
+        country_links = []
+        for country in countries_involved:
+            country_url = country.lower().replace(" ", "-")
+            if "turkiye" in country_url:
+                country_url = "turkiye"
+            elif "china" in country_url:
+                country_url = "china"
+            country_links.append(f"[{country}](https://www.iea.org/countries/{country_url})")
+        st.markdown("### Learn more about these countries' energy sectors:")
+        st.markdown(", ".join(country_links))
+        
         # Share your score text
         score = ""
         for answer in st.session_state.answers:
@@ -241,7 +226,25 @@ if st.button("Submit Guess"):
         st.session_state.selected_country = random.choice(countries) if random_mode else fixed_country
         st.session_state.correct = False
         st.session_state.answers = []
-        st.session_state.hints_used = False
+
+        # Dropdown menu to select flow for final charts
+        selected_flow_final = st.selectbox("Select a Flow for final charts:", flows, index=list(flows).index(default_flow))
+        final_filtered_data = energy_data[energy_data['Flow'] == selected_flow_final]
+
+        # Prepare data for final charts
+        final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
+        final_chart_data['Country'] = pd.Categorical(final_chart_data['Country'], categories=countries_involved, ordered=True)
+
+        # Stacked bar chart for total values
+        fig_stacked = px.bar(final_chart_data, x='Country', y='2021', color='Product', title="Total Values by Country",
+                             color_discrete_map=color_palette)
+        st.plotly_chart(fig_stacked)
+
+        # Stacked 100% bar chart for relative shares
+        final_chart_data['Percentage'] = final_chart_data.groupby('Country')['2021'].transform(lambda x: x / x.sum() * 100)
+        fig_stacked_100 = px.bar(final_chart_data, x='Country', y='Percentage', color='Product', title="Relative Shares by Country",
+                                 color_discrete_map=color_palette)
+        st.plotly_chart(fig_stacked_100)
 
 # Separator
 st.markdown('---')
@@ -258,8 +261,6 @@ if st.session_state.answers:
         else:
             color = 'red'
         sidebar_text = f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%"
-        if 'distance_km' in answer:
-            sidebar_text += f", {answer['distance_km']:.1f} km"
         sidebar_text += "</span>"
         st.sidebar.markdown(sidebar_text, unsafe_allow_html=True)
 
