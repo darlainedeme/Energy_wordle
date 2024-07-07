@@ -252,6 +252,20 @@ def explore_results():
     final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
     final_chart_data['Country'] = pd.Categorical(final_chart_data['Country'], categories=countries_involved, ordered=True)
 
+    # Define the color palette
+    color_palette = {
+        "Coal, peat and oil shale": "#4B5320",
+        "Crude, NGL and feedstocks": "#A52A2A",
+        "Oil products": "#FF8C00",
+        "Natural gas": "#1E90FF",
+        "Nuclear": "#FFD700",
+        "Renewables and waste": "#32CD32",
+        "Electricity": "#9400D3",
+        "Heat": "#FF4500",
+        "Fossil fuels": "#708090",
+        "Renewable sources": "#00FA9A"
+    }
+
     # Stacked bar chart for total values
     fig_stacked = px.bar(final_chart_data, x='Country', y='2021', color='Product', title="Total Values by Country",
                          color_discrete_map=color_palette)
