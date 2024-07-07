@@ -240,7 +240,7 @@ def explore_results():
     countries_involved = [st.session_state.selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != st.session_state.selected_country]
 
     # Add an empty bar for visual separation
-    countries_involved.insert(1, "_")
+    countries_involved.insert(1, " ")
     
     # Check the order of countries involved
     st.write("Countries involved (order):", countries_involved)
