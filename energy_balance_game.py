@@ -298,6 +298,7 @@ def main_game():
 
             # Provide links to learn more about the countries involved in the game
             countries_involved = [selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != selected_country]
+            countries_involved = countries_involved.unique()
             country_links = []
             for country in countries_involved:
                 country_url = country.lower().replace(" ", "-")
