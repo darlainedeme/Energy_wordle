@@ -8,9 +8,12 @@ import numpy as np
 random_mode = st.secrets["random_mode"]["mode"]
 fixed_country = st.secrets["fixed_country"]["name"]
 
-# Load the CSV file
+# Load the CSV files
 file_path = 'WorldEnergyBalancesHighlights2023.csv'
 energy_data = pd.read_csv(file_path)
+
+distance_matrix_path = 'distance-matrix.csv'
+distance_matrix = pd.read_csv(distance_matrix_path, index_col=0)
 
 # Convert the '2021' column to numeric, errors='coerce' will replace non-convertible values with NaN
 energy_data['2021'] = pd.to_numeric(energy_data['2021'], errors='coerce')
@@ -28,9 +31,11 @@ if 'correct' not in st.session_state:
     st.session_state.correct = False
 if 'answers' not in st.session_state:
     st.session_state.answers = []
+if 'hints_used' not in st.session_state:
+    st.session_state.hints_used = False
 
 # Title and description
-st.title("Energy Mix Guessing Game")
+st.title("Energy Balance Guessing Game")
 
 with st.expander("About the Data", expanded=True):
     st.markdown("""
@@ -63,6 +68,11 @@ with st.expander("How to Play", expanded=True):
 
 # Set default flow
 default_flow = "Production (PJ)"
+
+st.markdown("""
+### Energy Mix Treemap
+The treemap below shows the energy mix for the selected flow. Each rectangle represents a product, sized proportionally to its total value. The percentage share of each product is also displayed. Use this visualization to analyze the energy profile of the selected country.
+""")
 
 # Flow selection dropdown
 selected_flow = st.selectbox("Select a Flow to investigate:", flows, index=list(flows).index(default_flow))
@@ -98,20 +108,15 @@ color_palette = {
     "Renewable sources": "#00FA9A"
 }
 
-st.markdown("""
-### Energy Mix Treemap
-The treemap below shows the energy mix for the selected flow. Each rectangle represents a product, sized proportionally to its total value. The percentage share of each product is also displayed. Use this visualization to analyze the energy profile of the selected country.
-""")
-
 # Display total value for the country
 total_value = int(country_data['2021'].sum())
 
 # Display the treemap with percentage shares
-country_data['Percentage'] = (country_data['2021'] / total_value * 100).round(2)
+country_data['Percentage'] = (country_data['2021'] / total_value * 100).round(1)
 fig = px.treemap(country_data, path=['Product'], values='2021', title=f"Energy Mix: (Total value for all products: {total_value} {unit_of_measure})",
                  color='Product', color_discrete_map=color_palette,
                  custom_data=['Percentage'])
-fig.update_traces(texttemplate='%{label}<br>%{value} %{customdata[0]}%', hovertemplate=None)
+fig.update_traces(texttemplate='%{label}<br>%{value:.1f}<br>%{customdata[0]}%', hovertemplate=None)
 fig.update_layout(height=600, width=800)
 st.plotly_chart(fig)
 
@@ -120,7 +125,7 @@ st.markdown('---')
 
 # Guessing section
 st.write(f"Round {st.session_state.round + 1} of 5")
-guess = st.selectbox("Guess the Country:", countries)
+guess = st.selectbox("Guess the Country:", [country for country in countries if country not in [answer['guess'] for answer in st.session_state.answers]])
 if st.button("Submit Guess"):
     st.session_state.round += 1
     if guess == selected_country:
@@ -173,25 +178,42 @@ if st.button("Submit Guess"):
                 explanations.append((diff, explanation, product))
 
         # Sort explanations by absolute difference in descending order
-        # Sort explanations by absolute difference in descending order
         explanations.sort(key=lambda x: abs(x[0]), reverse=True)
 
-        st.markdown("#### Detailed Differences:")
-        for _, explanation, product in explanations:
-            product_color = color_palette[product]
-            st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
+        with st.expander("Detailed Differences", expanded=False):
+            for _, explanation, product in explanations:
+                product_color = color_palette[product]
+                st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
+
+        # Offer hint if on the 4th or 5th attempt and hint not yet used
+        if (st.session_state.round == 4 or st.session_state.round == 5) and not st.session_state.hints_used:
+            if st.button("Use Hint"):
+                st.session_state.hints_used = True
+                hint_message = "Distance to the correct country from your guesses:\n"
+                for answer in st.session_state.answers:
+                    guess_iso = energy_data[energy_data['Country'] == answer['guess']]['ISO'].values[0]
+                    correct_iso = energy_data[energy_data['Country'] == selected_country]['ISO'].values[0]
+                    distance = distance_matrix.loc[guess_iso, correct_iso]
+                    hint_message += f"{answer['guess']} to {selected_country}: {distance:.1f} km\n"
+                    # Append distance to the sidebar guesses
+                    st.session_state.answers[-1]['distance_km'] = distance
+                st.write(hint_message)
 
     if st.session_state.round == 5 or st.session_state.correct:
         attempts = st.session_state.round if st.session_state.correct else 5
         if st.session_state.correct:
             st.success(f"Congratulations! You guessed the correct country: {selected_country}")
         else:
-            st.error(f"Game Over! The correct country was: {selected_country}")
+            st.error(f"I failed at today's energy wordle, can you make it?")
             st.write("Your guesses and distances were:")
             st.table(pd.DataFrame(st.session_state.answers))
         
         # Provide link to learn more about the country's energy sector
         country_url = selected_country.lower().replace(" ", "-")
+        if "turkiye" in country_url:
+            country_url = "turkiye"
+        elif "china" in country_url:
+            country_url = "china"
         st.markdown(f"[Do you want to learn more about {selected_country}'s energy sector? Visit the IEA website](https://www.iea.org/countries/{country_url})")
 
         # Share your score text
@@ -208,7 +230,7 @@ if st.button("Submit Guess"):
         if st.session_state.correct:
             result_text = f"Here's my results in today #energywordle: {attempts}/5\n{score} https://energywordle.streamlit.app/"
         else:
-            result_text = f"Can you make it?\n{score} https://energywordle.streamlit.app/"
+            result_text = f"I failed at today's energy wordle, can you make it?\n{score} https://energywordle.streamlit.app/"
         
         st.markdown("**Share your score:**")
         st.text_area("", result_text, height=100)
@@ -218,6 +240,7 @@ if st.button("Submit Guess"):
         st.session_state.selected_country = random.choice(countries) if random_mode else fixed_country
         st.session_state.correct = False
         st.session_state.answers = []
+        st.session_state.hints_used = False
 
 # Separator
 st.markdown('---')
@@ -233,7 +256,11 @@ if st.session_state.answers:
             color = 'yellow'
         else:
             color = 'red'
-        st.sidebar.markdown(f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%</span>", unsafe_allow_html=True)
+        sidebar_text = f"<span style='color:{color}'>{answer['guess']}: {distance:.2f}%"
+        if 'distance_km' in answer:
+            sidebar_text += f", {answer['distance_km']:.1f} km"
+        sidebar_text += "</span>"
+        st.sidebar.markdown(sidebar_text, unsafe_allow_html=True)
 
 st.sidebar.markdown('---')
 st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
