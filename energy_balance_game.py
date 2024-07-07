@@ -70,18 +70,26 @@ selected_flow = st.selectbox("Select a Flow to investigate:", flows, index=list(
 filtered_data = energy_data[energy_data['Flow'] == selected_flow]
 
 # Filter data for total final consumption only
-tfc_data = energy_data[energy_data['Flow'] == "Total final consumption (PJ)"]
+tfc_data = energy_data[energy_data['Flow'] == "Total Final Consumption (PJ)"]
 
 # Selected country and filtering data
 selected_country = st.session_state.selected_country
 country_data = filtered_data[filtered_data['Country'] == selected_country]
 tfc_country_data = tfc_data[tfc_data['Country'] == selected_country]
 
-# Determine the unit of measure based on the selected flow
-if selected_flow == "Electricity output (GWh)":
-    unit_of_measure = "GWh"
-else:
-    unit_of_measure = "PJ"
+# Define the color palette
+color_palette = {
+    "Coal, peat and oil shale": "#4B5320",
+    "Crude, NGL and feedstocks": "#A52A2A",
+    "Oil products": "#FF8C00",
+    "Natural gas": "#1E90FF",
+    "Nuclear": "#FFD700",
+    "Renewables and waste": "#32CD32",
+    "Electricity": "#9400D3",
+    "Heat": "#FF4500",
+    "Fossil fuels": "#708090",
+    "Renewable sources": "#00FA9A"
+}
 
 # Display total value for the country
 total_value = country_data['2021'].sum()
@@ -92,13 +100,10 @@ st.markdown("""
 The treemap below shows the energy mix for the selected flow. Each rectangle represents a product, sized proportionally to its total value. The percentage share of each product is also displayed. Use this visualization to analyze the energy profile of the selected country.
 """)
 
-# Define a color palette similar to IEA World Energy Outlook
-color_palette = px.colors.qualitative.Set1
-
 # Display the treemap with percentage shares
 country_data['Percentage'] = (country_data['2021'] / total_value * 100).round(2)
 fig = px.treemap(country_data, path=['Product'], values='2021', title=f"Energy Mix",
-                 color='Product', color_discrete_sequence=color_palette,
+                 color='Product', color_discrete_map=color_palette,
                  custom_data=['Percentage'])
 fig.update_traces(texttemplate='%{label}<br>%{customdata[0]}%')
 st.plotly_chart(fig)
@@ -143,29 +148,28 @@ if st.button("Submit Guess"):
         }).reset_index(drop=True).sort_values(by='Difference (%)', ascending=False, key=abs)
         
         fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference per Product (%)",
-                              color='Product', color_discrete_sequence=color_palette, orientation='h')
+                              color='Product', color_discrete_map=color_palette, orientation='h')
         fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
         st.plotly_chart(fig_distance)
         st.write(f"Average share difference: {distance:.2f}%")
-        
+
         # Generate explanations for each product
         explanations = []
         for _, row in distance_data.iterrows():
             product = row['Product']
             diff = row['Difference (%)']
-            if diff != 0:
-                if diff > 0:
-                    explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
-                elif diff < 0:
-                    explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
-                explanations.append((diff, explanation, product))
+            if diff > 0:
+                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
+            else:
+                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
+            explanations.append((diff, explanation, product))
 
         # Sort explanations by absolute difference in descending order
         explanations.sort(key=lambda x: abs(x[0]), reverse=True)
 
         st.markdown("#### Detailed Differences:")
         for _, explanation, product in explanations:
-            product_color = color_palette[list(distance_data['Product']).index(product) % len(color_palette)]
+            product_color = color_palette[product]
             st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
 
     if st.session_state.round == 5 or st.session_state.correct:
@@ -220,4 +224,3 @@ if st.session_state.answers:
 
 st.sidebar.markdown('---')
 st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
-
