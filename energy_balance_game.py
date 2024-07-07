@@ -240,7 +240,7 @@ def explore_results():
     countries_involved = [st.session_state.selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != st.session_state.selected_country]
 
     # Add an empty bar for visual separation
-    countries_involved.insert(1, "")
+    countries_involved.insert(1, "_")
     
     # Check the order of countries involved
     st.write("Countries involved (order):", countries_involved)
@@ -254,7 +254,10 @@ def explore_results():
     )
 
     final_filtered_data = energy_data[energy_data['Flow'] == selected_flow_final]
-    
+
+    # Get unique products for the selected flow
+    unique_products = final_filtered_data['Product'].unique()
+
     # Prepare data for final charts
     final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
     final_chart_data['Country'] = pd.Categorical(final_chart_data['Country'], categories=countries_involved, ordered=True)
@@ -262,12 +265,15 @@ def explore_results():
     # Reorder the dataframe based on the categorical order
     final_chart_data = final_chart_data.sort_values(by='Country')
 
-    # Add a row for the empty bar at the second position
-    empty_row = pd.DataFrame({"Country": [""], "Flow": [selected_flow_final], "Product": [""], "2021": [0]})
-    final_chart_data = pd.concat([final_chart_data.iloc[:1], empty_row, final_chart_data.iloc[1:]]).reset_index(drop=True)
+    # Add empty rows for each product
+    empty_rows = pd.DataFrame({
+        "Country": ["_"] * len(unique_products),
+        "Flow": [selected_flow_final] * len(unique_products),
+        "Product": unique_products,
+        "2021": [0] * len(unique_products)
+    })
+    final_chart_data = pd.concat([final_chart_data.iloc[:len(unique_products)], empty_rows, final_chart_data.iloc[len(unique_products):]]).reset_index(drop=True)
 
-    final_chart_data
-    
     # Define the color palette
     color_palette = {
         "Coal, peat and oil shale": "#4B5320",
@@ -296,7 +302,7 @@ def explore_results():
     # Provide links to learn more about the countries involved in the game
     country_links = []
     for country in countries_involved:
-        if country != "":
+        if country != "_":
             country_url = country.lower().replace(" ", "-")
             if "turkiye" in country_url:
                 country_url = "turkiye"
