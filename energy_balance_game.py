@@ -168,7 +168,6 @@ def main_game():
                                   color='Product', color_discrete_map=color_palette, orientation='h')
             fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
             st.plotly_chart(fig_distance)
-            st.write(f"Average share difference: {distance:.2f}%")
 
             # Generate explanations for each product
             explanations = []
@@ -331,7 +330,7 @@ if st.session_state.answers:
             color = '🟨'
         else:
             color = '🟥'
-        sidebar_text = f"{color} {answer['guess']}: {distance:.2f}%"
+        sidebar_text = f"{color} {answer['guess']}"
         st.sidebar.markdown(sidebar_text)
 
 st.sidebar.markdown('---')
