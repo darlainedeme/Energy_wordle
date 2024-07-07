@@ -29,16 +29,12 @@ def send_email(to_emails, subject, content):
     # Attach the content
     msg.attach(MIMEText(content, 'plain'))
 
-    try:
-        # Send the email
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.send_message(msg)
-        server.quit()
-        st.sidebar.success("Game summary sent successfully!")
-    except Exception as e:
-        st.sidebar.error(f"An error occurred while sending the email: {e}")
+    # Send the email
+    server = smtplib.SMTP(smtp_server, smtp_port)
+    server.starttls()
+    server.login(smtp_user, smtp_password)
+    server.send_message(msg)
+    server.quit()
 
 # Load the CSV file
 file_path = 'WorldEnergyBalancesHighlights2023.csv'
@@ -55,7 +51,7 @@ countries = sorted(energy_data['Country'].unique())
 if 'username' not in st.session_state:
     st.session_state.username = ""
 if 'start_time' not in st.session_state:
-    st.session_state.start_time = None
+    st.session_state.start_time = datetime.now()
 if 'end_time' not in st.session_state:
     st.session_state.end_time = None
 if 'round' not in st.session_state:
@@ -94,7 +90,7 @@ def send_game_summary():
         summary += f"Round {answers.index(answer) + 1}: {answer['guess']} with {answer['distance']:.2f}% difference\n"
     summary += f"Correct Country: {selected_country}\n"
     
-    send_email(["darlain.edeme@iea.org"], "Energy Wordle Game Summary", summary)
+    send_email(["darlainedeme@gmail.com"], "Energy Wordle Game Summary", summary)
 
 # Main game page
 def main_game():
