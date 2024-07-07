@@ -242,9 +242,6 @@ def explore_results():
     # Add an empty bar for visual separation
     countries_involved.insert(1, " ")
     
-    # Check the order of countries involved
-    st.write("Countries involved (order):", countries_involved)
-
     # Dropdown menu to select flow for final charts
     selected_flow_final = st.selectbox(
         "Select a Flow for final charts:",
