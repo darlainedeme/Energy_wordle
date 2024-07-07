@@ -164,11 +164,12 @@ if st.button("Submit Guess"):
         for _, row in distance_data.iterrows():
             product = row['Product']
             diff = row['Difference (%)']
-            if diff > 0:
-                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
-            else:
-                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
-            explanations.append((diff, explanation, product))
+            if diff != 0:
+                if diff > 0:
+                    explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
+                else:
+                    explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
+                explanations.append((diff, explanation, product))
 
         # Sort explanations by absolute difference in descending order
         explanations.sort(key=lambda x: abs(x[0]), reverse=True)
