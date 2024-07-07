@@ -313,7 +313,7 @@ def explore_results():
     countries_involved = [st.session_state.selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != st.session_state.selected_country]
 
     # Add an empty bar for visual separation
-    countries_involved.insert(1, "_")
+    countries_involved.insert(1, " ")
     
     # Dropdown menu to select flow for final charts
     selected_flow_final = st.selectbox(
@@ -337,7 +337,7 @@ def explore_results():
 
     # Add empty rows for each product
     empty_rows = pd.DataFrame({
-        "Country": ["_"] * len(unique_products),
+        "Country": [" "] * len(unique_products),
         "Flow": [selected_flow_final] * len(unique_products),
         "Product": unique_products,
         "2021": [0] * len(unique_products)
@@ -372,7 +372,7 @@ def explore_results():
     # Provide links to learn more about the countries involved in the game
     country_links = []
     for country in countries_involved:
-        if country != "_":
+        if country != " ":
             country_url = country.lower().replace(" ", "-")
             if "turkiye" in country_url:
                 country_url = "turkiye"
