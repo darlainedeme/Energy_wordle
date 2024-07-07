@@ -30,7 +30,7 @@ if 'answers' not in st.session_state:
     st.session_state.answers = []
 
 # Title and description
-st.title("Energy Balance Guessing Game")
+st.title("Energy Mix Guessing Game")
 
 with st.expander("About the Data", expanded=True):
     st.markdown("""
@@ -98,21 +98,21 @@ color_palette = {
     "Renewable sources": "#00FA9A"
 }
 
-# Display total value for the country
-total_value = country_data['2021'].sum()
-st.subheader(f"Total value for all products: {round(total_value, 2)} {unit_of_measure}")
-
 st.markdown("""
 ### Energy Mix Treemap
 The treemap below shows the energy mix for the selected flow. Each rectangle represents a product, sized proportionally to its total value. The percentage share of each product is also displayed. Use this visualization to analyze the energy profile of the selected country.
 """)
 
+# Display total value for the country
+total_value = int(country_data['2021'].sum())
+
 # Display the treemap with percentage shares
 country_data['Percentage'] = (country_data['2021'] / total_value * 100).round(2)
-fig = px.treemap(country_data, path=['Product'], values='2021', title=f"Energy Mix",
+fig = px.treemap(country_data, path=['Product'], values='2021', title=f"Energy Mix: (Total value for all products: {total_value} {unit_of_measure})",
                  color='Product', color_discrete_map=color_palette,
                  custom_data=['Percentage'])
-fig.update_traces(texttemplate='%{label}<br>%{customdata[0]}%')
+fig.update_traces(texttemplate='%{label}<br>%{value} %{customdata[0]}%', hovertemplate=None)
+fig.update_layout(height=600, width=800)
 st.plotly_chart(fig)
 
 # Separator
@@ -173,6 +173,7 @@ if st.button("Submit Guess"):
                 explanations.append((diff, explanation, product))
 
         # Sort explanations by absolute difference in descending order
+        # Sort explanations by absolute difference in descending order
         explanations.sort(key=lambda x: abs(x[0]), reverse=True)
 
         st.markdown("#### Detailed Differences:")
@@ -189,6 +190,10 @@ if st.button("Submit Guess"):
             st.write("Your guesses and distances were:")
             st.table(pd.DataFrame(st.session_state.answers))
         
+        # Provide link to learn more about the country's energy sector
+        country_url = selected_country.lower().replace(" ", "-")
+        st.markdown(f"[Do you want to learn more about {selected_country}'s energy sector? Visit the IEA website](https://www.iea.org/countries/{country_url})")
+
         # Share your score text
         score = ""
         for answer in st.session_state.answers:
