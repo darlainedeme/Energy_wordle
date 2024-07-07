@@ -30,7 +30,7 @@ if 'answers' not in st.session_state:
     st.session_state.answers = []
 
 # Title and description
-st.title("Energy Balance Guessing Game")
+st.title("Weekly Energy Balance Guessing Game")
 
 with st.expander("About the Data", expanded=True):
     st.markdown("""
@@ -49,7 +49,7 @@ with st.expander("About the Data", expanded=True):
 with st.expander("How to Play", expanded=True):
     st.markdown("""
     ### How to Play
-    1. Each day, a specific country's energy mix data will be selected. Analyze the treemap and the total value of all products for clues about the country's energy mix.
+    1. Each week, a specific country's energy mix data will be selected. Analyze the treemap and the total value of all products for clues about the country's energy mix.
     2. You have 5 attempts to guess the country correctly.
     3. Enter your guess in the dropdown menu and click "Submit Guess".
     4. If your guess is incorrect, the game will show you the difference in shares between your guess and the correct country using a bar chart. The default flow is "Production (PJ)" and differences should also apply to the "Total Final Consumption (PJ)" values.
@@ -188,9 +188,9 @@ if st.button("Submit Guess"):
             st.error(f"Game Over! The correct country was: {selected_country}")
             st.write("Your guesses and distances were:")
             st.table(pd.DataFrame(st.session_state.answers))
-        
+
         # Provide links to learn more about the countries involved in the game
-        countries_involved = list({selected_country}.union({answer['guess'] for answer in st.session_state.answers}))
+        countries_involved = [selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers)]
         country_links = []
         for country in countries_involved:
             country_url = country.lower().replace(" ", "-")
@@ -221,15 +221,9 @@ if st.button("Submit Guess"):
         st.markdown("**Share your score:**")
         st.text_area("", result_text, height=100)
 
-        # Reset the game
-        st.session_state.round = 0
-        st.session_state.selected_country = random.choice(countries) if random_mode else fixed_country
-        st.session_state.correct = False
-        st.session_state.answers = []
-
-        # Dropdown menu to select flow for final charts
-        selected_flow_final = st.selectbox("Select a Flow for final charts:", flows, index=list(flows).index(default_flow))
-        final_filtered_data = energy_data[energy_data['Flow'] == selected_flow_final]
+        # Prevent page refresh on final chart flow selection
+        st.session_state.final_flow = st.selectbox("Select a Flow for final charts:", flows, index=list(flows).index(default_flow), key='final_flow')
+        final_filtered_data = energy_data[energy_data['Flow'] == st.session_state.final_flow]
 
         # Prepare data for final charts
         final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
