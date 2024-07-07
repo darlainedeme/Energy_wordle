@@ -16,7 +16,7 @@ smtp_password = os.environ.get('GMAIL_PASSWORD')
 def send_email(to_emails, subject, content):
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
-    
+
     # Create the message
     msg = MIMEMultipart()
     msg['From'] = smtp_user
@@ -77,8 +77,8 @@ def reset_game():
 # Function to handle the email sending
 def send_game_summary():
     username = st.session_state.username
-    start_time = st.session_state.start_time.strftime("%Y-%m-%d %H:%M:%S")
-    end_time = st.session_state.end_time.strftime("%Y-%m-%d %H:%M:%S")
+    start_time = st.session_state.start_time.strftime("%Y-%m-%d %H:%M:%S") if st.session_state.start_time else "Unknown"
+    end_time = st.session_state.end_time.strftime("%Y-%m-%d %H:%M:%S") if st.session_state.end_time else "Unknown"
     answers = st.session_state.answers
     selected_country = st.session_state.selected_country
     
@@ -90,8 +90,11 @@ def send_game_summary():
         summary += f"Round {answers.index(answer) + 1}: {answer['guess']} with {answer['distance']:.2f}% difference\n"
     summary += f"Correct Country: {selected_country}\n"
     
-    send_email(["darlain.edeme@iea.org"], "Energy Wordle Game Summary", summary)
-
+    try:
+        send_email(["darlain.edeme@iea.org"], "Energy Wordle Game Summary", summary)
+        st.sidebar.success("Game summary sent successfully!")
+    except Exception as e:
+        st.sidebar.error(f"An error occurred: {e}")
 
 # Main game page
 def main_game():
