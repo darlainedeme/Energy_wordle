@@ -14,8 +14,8 @@ smtp_user = os.environ.get('smtp_user')
 smtp_password = os.environ.get('smtp_password')
 
 # Debugging code to print the environment variables (remove or comment out before deploying)
-print(f"smtp_user: {smtp_user}")
-print(f"smtp_password: {smtp_password}")
+write(f"smtp_user: {smtp_user}")
+write(f"smtp_password: {smtp_password}")
 
 def send_email(to_emails, subject, content):
     smtp_server = "smtp.gmail.com"
