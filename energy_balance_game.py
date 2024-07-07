@@ -90,7 +90,7 @@ def send_game_summary():
         summary += f"Round {answers.index(answer) + 1}: {answer['guess']} with {answer['distance']:.2f}% difference\n"
     summary += f"Correct Country: {selected_country}\n"
     
-    send_email(["darlainedeme@gmail.com"], "Energy Wordle Game Summary", summary)
+    send_email([smtp_user], "Energy Wordle Game Summary", summary)
 
 # Main game page
 def main_game():
