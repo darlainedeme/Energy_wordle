@@ -253,6 +253,8 @@ def explore_results():
         key='final_flow_selectbox'
     )
 
+    final_filtered_data = energy_data[energy_data['Flow'] == selected_flow_final]
+    
     # Prepare data for final charts
     final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
     final_chart_data['Country'] = pd.Categorical(final_chart_data['Country'], categories=countries_involved, ordered=True)
