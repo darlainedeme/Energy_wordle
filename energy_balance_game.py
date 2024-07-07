@@ -30,7 +30,7 @@ if 'answers' not in st.session_state:
     st.session_state.answers = []
 
 # Title and description
-st.title("Energy Mix Guessing Game")
+st.title("Energy Balance Guessing Game")
 
 with st.expander("About the Data", expanded=True):
     st.markdown("""
