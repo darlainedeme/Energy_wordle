@@ -258,23 +258,23 @@ def main_game():
                             if diff > 0:
                                 explanation = f"The country you selected has a share of **{product}** in production that is **{abs(diff):.2f}% higher** than the target country."
                                 if abs(diff) < 5:
-                                    explanation += " You were very close on this product."
+                                    explanation += " You were very close, you're on the right track with this product's share."
                                 elif 5 <= abs(diff) < 15:
-                                    explanation += " You are looking for a country that produces slightly more of this product."
+                                    explanation += " You are looking for a country that produces slightly more of this product (as a share)."
                                 elif 15 <= abs(diff) < 30:
-                                    explanation += " You are looking for a country that produces more of this product."
+                                    explanation += " You are looking for a country that produces more of this product (as a share)."
                                 else:
-                                    explanation += " You are looking for a country that produces much more of this product."
+                                    explanation += " You are looking for a country that produces much more of this product (as a share)."
                             else:
                                 explanation = f"The country you selected has a share of **{product}** in production that is **{abs(diff):.2f}% lower** than the target country."
                                 if abs(diff) < 5:
-                                    explanation += " You were very close on this product."
+                                    explanation += " You were very close, you're on the right track with this product's share."
                                 elif 5 <= abs(diff) < 15:
-                                    explanation += " You are looking for a country that produces slightly less of this product."
+                                    explanation += " You are looking for a country that produces slightly less of this product (as a share)."
                                 elif 15 <= abs(diff) < 30:
-                                    explanation += " You are looking for a country that produces less of this product."
+                                    explanation += " You are looking for a country that produces less of this product (as a share)."
                                 else:
-                                    explanation += " You are looking for a country that produces much less of this product."
+                                    explanation += " You are looking for a country that produces much less of this product (as a share)."
                             explanations.append((diff, explanation, product))
 
                     # Sort explanations by absolute difference in descending order
