@@ -30,9 +30,9 @@ if 'answers' not in st.session_state:
     st.session_state.answers = []
 
 # Title and description
-st.title("Energy Balance Guessing Game")
+st.title("Energy Mix Guessing Game")
 st.markdown("""
-Welcome to the Energy Balance Guessing Game! This game is based on the **World Energy Balances 2023 Highlights** from the International Energy Agency (IEA).
+Welcome to the Energy Mix Guessing Game! This game is based on the **World Energy Balances 2023 Highlights** from the International Energy Agency (IEA).
 
 ---
 
@@ -46,11 +46,11 @@ Source: [IEA World Energy Balances](https://www.iea.org/data-and-statistics/data
 ---
 
 ### How to Play
-1. Each day, a specific country's energy balance data will be selected. Analyze the treemap and the total value of all products for clues about the country's energy mix.
+1. Each day, a specific country's energy mix data will be selected. Analyze the treemap and the total value of all products for clues about the country's energy mix.
 2. You have 5 attempts to guess the country correctly.
 3. Enter your guess in the dropdown menu and click "Submit Guess".
 4. If your guess is incorrect, the game will show you the difference in shares between your guess and the correct country using a bar chart. The default flow is "Production (PJ)" and differences should also apply to the "Total Final Consumption (PJ)" values.
-5. The bar chart displays the percentage difference for each product, helping you refine your next guess. The legend will explain whether the share of each product is higher or lower in your guessed country compared to the correct country.
+5. The bar chart displays the percentage difference for each product, helping you refine your next guess.
 6. Your previous guesses will be shown on the sidebar, color-coded based on their accuracy: 
    - Green for close (average share difference < 5%)
    - Yellow for moderate (average share difference between 5% and 15%)
@@ -126,8 +126,7 @@ if st.button("Submit Guess"):
         distance = share_difference.abs().mean()
         st.session_state.answers.append({
             'guess': guess,
-            'distance': distance,
-            'differences': share_difference
+            'distance': distance
         })
         
         st.write("Incorrect Guess!")
@@ -137,14 +136,6 @@ if st.button("Submit Guess"):
         The bar chart below shows the percentage difference for each product between your guessed country and the correct country. This will help you understand how close your guess was and refine your next guess.
         """)
 
-        # Prepare explanatory text for the legend
-        legend_text = "The country you selected has a share of:"
-        for product, diff in share_difference.items():
-            if diff > 0:
-                legend_text += f"\n{product}: {diff:.2f}% higher"
-            else:
-                legend_text += f"\n{product}: {-diff:.2f}% lower"
-
         # Display horizontal bar chart with differences sorted by absolute difference
         distance_data = pd.DataFrame({
             'Product': guessed_country_data.index,
@@ -153,9 +144,26 @@ if st.button("Submit Guess"):
         
         fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference per Product (%)",
                               color='Product', color_discrete_sequence=color_palette, orientation='h')
-        fig_distance.update_layout(xaxis_title=None, yaxis_title=None, legend_title_text=legend_text)
+        fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
         st.plotly_chart(fig_distance)
         st.write(f"Average share difference: {distance:.2f}%")
+
+        # Generate explanations for each product
+        explanations = []
+        for _, row in distance_data.iterrows():
+            product = row['Product']
+            diff = row['Difference (%)']
+            if diff > 0:
+                explanation = f"The country you selected has a share of **{product}** that is **{abs(diff):.2f}% higher** than the target country."
+            else:
+                explanation = f"The country you selected has a share of **{product}** that is **{abs(diff):.2f}% lower** than the target country."
+            explanations.append(explanation)
+
+        st.markdown("#### Detailed Differences:")
+        for explanation in explanations:
+            product_name = explanation.split("**")[1]
+            product_color = color_palette[distance_data[distance_data['Product'] == product_name].index[0] % len(color_palette)]
+            st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
 
     if st.session_state.round == 5 or st.session_state.correct:
         attempts = st.session_state.round if st.session_state.correct else 5
@@ -180,7 +188,7 @@ if st.button("Submit Guess"):
         if st.session_state.correct:
             result_text = f"Here's my results in today #energywordle: {attempts}/5\n{score} https://energywordle.streamlit.app/"
         else:
-            result_text = f"Can you make it? {score} https://energywordle.streamlit.app/"
+            result_text = f"Can you make it?\n{score} https://energywordle.streamlit.app/"
         
         st.markdown("**Share your score:**")
         st.text_area("", result_text, height=100)
