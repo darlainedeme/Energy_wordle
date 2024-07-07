@@ -254,6 +254,7 @@ def explore_results():
     )
 
     final_filtered_data = energy_data[energy_data['Flow'] == selected_flow_final]
+    final_filtered_data
 
     # Prepare data for final charts
     final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
