@@ -29,12 +29,16 @@ def send_email(to_emails, subject, content):
     # Attach the content
     msg.attach(MIMEText(content, 'plain'))
 
-    # Send the email
-    server = smtplib.SMTP(smtp_server, smtp_port)
-    server.starttls()
-    server.login(smtp_user, smtp_password)
-    server.send_message(msg)
-    server.quit()
+    try:
+        # Send the email
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        st.sidebar.success("Game summary sent successfully!")
+    except Exception as e:
+        st.sidebar.error(f"An error occurred while sending the email: {e}")
 
 # Load the CSV file
 file_path = 'WorldEnergyBalancesHighlights2023.csv'
@@ -90,19 +94,18 @@ def send_game_summary():
         summary += f"Round {answers.index(answer) + 1}: {answer['guess']} with {answer['distance']:.2f}% difference\n"
     summary += f"Correct Country: {selected_country}\n"
     
-    try:
-        send_email(["darlain.edeme@iea.org"], "Energy Wordle Game Summary", summary)
-        st.sidebar.success("Game summary sent successfully!")
-    except Exception as e:
-        st.sidebar.error(f"An error occurred: {e}")
+    send_email(["darlain.edeme@iea.org"], "Energy Wordle Game Summary", summary)
 
 # Main game page
 def main_game():
     if not st.session_state.username:
         st.session_state.username = st.text_input("Enter your username to start the game:")
         if st.button("Start Game"):
-            st.session_state.start_time = datetime.now()
-            st.experimental_rerun()
+            if st.session_state.username:
+                st.session_state.start_time = datetime.now()
+                st.experimental_rerun()
+            else:
+                st.error("Please enter a username to start the game.")
     else:
         st.title("Weekly Energy Balance Guessing Game")
 
