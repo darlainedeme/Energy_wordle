@@ -249,7 +249,7 @@ def main_game():
                     fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
                     st.plotly_chart(fig_distance)
 
-                    # Generate explanations for each product.
+                    # Generate explanations for each product
                     explanations = []
                     for _, row in distance_data.iterrows():
                         product = row['Product']
@@ -277,6 +277,7 @@ def main_game():
                                 else:
                                     explanation += " You are looking for a country that produces much less of this product (as a share)."
                             explanations.append((diff, explanation, product))
+
                     # Sort explanations by absolute difference in descending order
                     explanations.sort(key=lambda x: abs(x[0]), reverse=True)
 
