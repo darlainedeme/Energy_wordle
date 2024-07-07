@@ -14,7 +14,7 @@ st.markdown(
     """
     <style>
     body {
-        zoom: 1.4; /* Adjust the zoom level as needed */
+        zoom: 1; /* Adjust the zoom level as needed */
     }
     </style>
     """,
@@ -261,21 +261,21 @@ def main_game():
                                 if abs(diff) < 5:
                                     explanation += " You were very close, you're on the right track with this product's share."
                                 elif 5 <= abs(diff) < 15:
-                                    explanation += " You are looking for a country that produces slightly more of this product (as a share)."
-                                elif 15 <= abs(diff) < 30:
-                                    explanation += " You are looking for a country that produces more of this product (as a share)."
-                                else:
-                                    explanation += " You are looking for a country that produces much more of this product (as a share)."
-                            else:
-                                explanation = f"{guessed_country_name} has a share of **{product}** in production that is **{abs(diff):.2f}% lower** than the target country."
-                                if abs(diff) < 5:
-                                    explanation += " You were very close, you're on the right track with this product's share."
-                                elif 5 <= abs(diff) < 15:
                                     explanation += " You are looking for a country that produces slightly less of this product (as a share)."
                                 elif 15 <= abs(diff) < 30:
                                     explanation += " You are looking for a country that produces less of this product (as a share)."
                                 else:
                                     explanation += " You are looking for a country that produces much less of this product (as a share)."
+                            else:
+                                explanation = f"{guessed_country_name} has a share of **{product}** in production that is **{abs(diff):.2f}% lower** than the target country."
+                                if abs(diff) < 5:
+                                    explanation += " You were very close, you're on the right track with this product's share."
+                                elif 5 <= abs(diff) < 15:
+                                    explanation += " You are looking for a country that produces slightly more of this product (as a share)."
+                                elif 15 <= abs(diff) < 30:
+                                    explanation += " You are looking for a country that produces more of this product (as a share)."
+                                else:
+                                    explanation += " You are looking for a country that produces much more of this product (as a share)."
                             explanations.append((diff, explanation, product))
 
                     # Sort explanations by absolute difference in descending order
