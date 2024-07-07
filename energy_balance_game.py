@@ -128,66 +128,67 @@ def main_game():
     # Separator
     st.markdown('---')
 
-    # Guessing section
-    st.write(f"Round {st.session_state.round + 1} of 5")
-    guess = st.selectbox("Guess the Country:", [country for country in countries if country not in [answer['guess'] for answer in st.session_state.answers]])
-    if st.button("Submit Guess"):
-        st.session_state.round += 1
-        if guess == selected_country:
-            st.session_state.correct = True
-        else:
-            guessed_country_data = tfc_data[tfc_data['Country'] == guess]
-            guessed_country_data = guessed_country_data.set_index('Product').reindex(tfc_country_data['Product']).fillna(0)
-            guessed_country_data['2021'] = guessed_country_data['2021'].replace(np.nan, 0)
-            tfc_country_data = tfc_country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
+    if st.session_state.round < 5 and not st.session_state.correct:
+        # Guessing section
+        st.write(f"Round {st.session_state.round + 1} of 5")
+        guess = st.selectbox("Guess the Country:", [country for country in countries if country not in [answer['guess'] for answer in st.session_state.answers]])
+        if st.button("Submit Guess"):
+            st.session_state.round += 1
+            if guess == selected_country:
+                st.session_state.correct = True
+            else:
+                guessed_country_data = tfc_data[tfc_data['Country'] == guess]
+                guessed_country_data = guessed_country_data.set_index('Product').reindex(tfc_country_data['Product']).fillna(0)
+                guessed_country_data['2021'] = guessed_country_data['2021'].replace(np.nan, 0)
+                tfc_country_data = tfc_country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
 
-            guessed_share = guessed_country_data['2021'] / guessed_country_data['2021'].sum()
-            correct_share = tfc_country_data['2021'] / tfc_country_data['2021'].sum()
-            share_difference = (guessed_share - correct_share) * 100
+                guessed_share = guessed_country_data['2021'] / guessed_country_data['2021'].sum()
+                correct_share = tfc_country_data['2021'] / tfc_country_data['2021'].sum()
+                share_difference = (guessed_share - correct_share) * 100
 
-            distance = share_difference.abs().mean()
-            st.session_state.answers.append({
-                'guess': guess,
-                'distance': distance
-            })
+                distance = share_difference.abs().mean()
+                st.session_state.answers.append({
+                    'guess': guess,
+                    'distance': distance
+                })
 
-            st.write("Incorrect Guess!")
-            st.write(f"Shares for {guess} vs Correct Shares:")
+                st.write("Incorrect Guess!")
+                st.write(f"Shares for {guess} vs Correct Shares:")
 
-            st.markdown("""
-            The bar chart below shows the percentage difference for each product between your guessed country and the correct country. This will help you understand how close your guess was and refine your next guess.
-            """)
+                st.markdown("""
+                The bar chart below shows the percentage difference for each product between your guessed country and the correct country. This will help you understand how close your guess was and refine your next guess.
+                """)
 
-            # Display horizontal bar chart with differences sorted by absolute difference
-            distance_data = pd.DataFrame({
-                'Product': guessed_country_data.index,
-                'Difference (%)': share_difference
-            }).reset_index(drop=True).sort_values(by='Difference (%)', ascending=False, key=abs)
+                # Display horizontal bar chart with differences sorted by absolute difference
+                distance_data = pd.DataFrame({
+                    'Product': guessed_country_data.index,
+                    'Difference (%)': share_difference
+                }).reset_index(drop=True).sort_values(by='Difference (%)', ascending=False, key=abs)
 
-            fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference per Product (%)",
-                                  color='Product', color_discrete_map=color_palette, orientation='h')
-            fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
-            st.plotly_chart(fig_distance)
+                fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference per Product (%)",
+                                      color='Product', color_discrete_map=color_palette, orientation='h')
+                fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
+                st.plotly_chart(fig_distance)
 
-            # Generate explanations for each product
-            explanations = []
-            for _, row in distance_data.iterrows():
-                product = row['Product']
-                diff = row['Difference (%)']
-                if diff != 0:
-                    if diff > 0:
+                # Generate explanations for each product
+                explanations = []
+                for _, row in distance_data.iterrows():
+                    product = row['Product']
+                    diff = row['Difference (%)']
+                    if diff != 0:
+                        if diff > 0
                         explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
                     else:
                         explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
                     explanations.append((diff, explanation, product))
 
-            # Sort explanations by absolute difference in descending order
-            explanations.sort(key=lambda x: abs(x[0]), reverse=True)
+                # Sort explanations by absolute difference in descending order
+                explanations.sort(key=lambda x: abs(x[0]), reverse=True)
 
-            with st.expander("Detailed Differences", expanded=False):
-                for _, explanation, product in explanations:
-                    product_color = color_palette[product]
-                    st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
+                with st.expander("Detailed Differences", expanded=False):
+                    for _, explanation, product in explanations:
+                        product_color = color_palette[product]
+                        st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
 
         if st.session_state.round == 5 or st.session_state.correct:
             if st.session_state.correct:
@@ -222,7 +223,7 @@ def main_game():
                     score += "🟥"
 
             if st.session_state.correct:
-                result_text = f"Here's my results in today #energywordle: {st.session_state.round}/5\n{score} https://energywordle.streamlit.app/"
+                result_text = f"Here's my results in today #energywordle: {st.session_state.round}/5\n{score} 🟩 https://energywordle.streamlit.app/"
             else:
                 result_text = f"I failed at today's energy wordle, can you make it?\n{score} https://energywordle.streamlit.app/"
             
@@ -230,6 +231,10 @@ def main_game():
             st.text_area("", result_text, height=100)
 
             st.markdown("Want to explore the results? Click on the top left 'Explore the Results'.")
+            st.markdown("Come back next Tuesday morning for the next match! In the meantime, explore your results.")
+            
+            # Disable further interaction by hiding the submit button and dropdown
+            st.session_state.round = 6  # Set a flag to indicate the game is over
 
 # Explore results page
 def explore_results():
@@ -240,7 +245,7 @@ def explore_results():
 
     # Add an empty bar for visual separation
     countries_involved.insert(1, " ")
-    
+
     # Dropdown menu to select flow for final charts
     selected_flow_final = st.selectbox(
         "Select a Flow for final charts:",
@@ -298,7 +303,7 @@ def explore_results():
     # Provide links to learn more about the countries involved in the game
     country_links = []
     for country in countries_involved:
-        if country != "_":
+        if country != " ":
             country_url = country.lower().replace(" ", "-")
             if "turkiye" in country_url:
                 country_url = "turkiye"
@@ -320,7 +325,7 @@ else:
     main_game()
 
 # Sidebar to display guessed countries and distances with colored squares
-st.sidebar.header("Guessed Countries")
+st.sidebar.header("Guessed Countries and Distances")
 if st.session_state.answers:
     for answer in st.session_state.answers:
         distance = answer['distance']
@@ -330,7 +335,7 @@ if st.session_state.answers:
             color = '🟨'
         else:
             color = '🟥'
-        sidebar_text = f"{color} {answer['guess']}"
+        sidebar_text = f"{color} {answer['guess']}: {distance:.2f}%"
         st.sidebar.markdown(sidebar_text)
 
 st.sidebar.markdown('---')
