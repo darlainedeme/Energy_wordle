@@ -157,10 +157,13 @@ if st.button("Submit Guess"):
                 explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
             else:
                 explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
-            explanations.append(explanation)
+            explanations.append((diff, explanation))
+
+        # Sort explanations by absolute difference in descending order
+        explanations.sort(key=lambda x: abs(x[0]), reverse=True)
 
         st.markdown("#### Detailed Differences:")
-        for explanation in explanations:
+        for _, explanation in explanations:
             product_name = explanation.split("**")[1]
             product_color = color_palette[distance_data[distance_data['Product'] == product_name].index[0] % len(color_palette)]
             st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
