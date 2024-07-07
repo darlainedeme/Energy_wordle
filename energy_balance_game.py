@@ -170,90 +170,120 @@ def main_game():
         # Filter data by the selected flow
         filtered_data = energy_data[energy_data['Flow'] == selected_flow]
 
-# Filter data for production
-production_data = energy_data[energy_data['Flow'] == "Production (PJ)"]
+        # Filter data for total final consumption only
+        tfc_data = energy_data[energy_data['Flow'] == "Total final consumption (PJ)"]
 
-# Selected country and filtering data for production
-selected_country = st.session_state.selected_country
-country_data = production_data[production_data['Country'] == selected_country]
+        # Selected country and filtering data
+        selected_country = st.session_state.selected_country
+        country_data = filtered_data[filtered_data['Country'] == selected_country]
+        tfc_country_data = tfc_data[tfc_data['Country'] == selected_country]
 
-# Guessing section
-if st.session_state.round < 5 and not st.session_state.correct:
-    st.write(f"Round {st.session_state.round + 1} of 5")
-    guess = st.selectbox("Guess the Country:", [country for country in countries])
-    if st.button("Submit Guess"):
-        st.session_state.round += 1
-        if guess == selected_country:
-            st.session_state.correct = True
-        else:
-            guessed_country_data = production_data[production_data['Country'] == guess]
-            guessed_country_data = guessed_country_data.set_index('Product').reindex(country_data['Product']).fillna(0)
-            guessed_country_data['2021'] = guessed_country_data['2021'].replace(np.nan, 0)
-            country_data = country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
+        # Define the color palette
+        color_palette = {
+            "Coal, peat and oil shale": "#4B5320",
+            "Crude, NGL and feedstocks": "#A52A2A",
+            "Oil products": "#FF8C00",
+            "Natural gas": "#1E90FF",
+            "Nuclear": "#FFD700",
+            "Renewables and waste": "#32CD32",
+            "Electricity": "#9400D3",
+            "Heat": "#FF4500",
+            "Fossil fuels": "#708090",
+            "Renewable sources": "#00FA9A"
+        }
 
-            guessed_share = guessed_country_data['2021'] / guessed_country_data['2021'].sum()
-            correct_share = country_data['2021'] / country_data['2021'].sum()
-            share_difference = (guessed_share - correct_share) * 100
+        # Display total value for the country
+        total_value = int(country_data['2021'].sum())
 
-            distance = share_difference.abs().mean()
-            st.session_state.answers.append({
-                'guess': guess,
-                'distance': distance
-            })
+        # Display the treemap with percentage shares
+        country_data['Percentage'] = (country_data['2021'] / total_value * 100).round(1)
+        fig = px.treemap(country_data, path=['Product'], values='2021', title=f"Energy Mix: (Total value for all products: {total_value} {unit_of_measure})",
+                         color='Product', color_discrete_map=color_palette,
+                         custom_data=['Percentage'])
+        fig.update_traces(texttemplate='%{label}<br>%{value:.1f}<br>%{customdata[0]}%', hovertemplate=None)
+        fig.update_layout(height=600, width=800)
+        st.plotly_chart(fig)
 
-            st.write("Incorrect Guess!")
-            st.write(f"Shares for {guess} vs Correct Shares:")
+        # Separator
+        st.markdown('---')
 
-            st.markdown("""
-            The bar chart below shows the percentage difference for each product between your guessed country and the correct country. This will help you understand how close your guess was and refine your next guess.
-            """)
+        if st.session_state.round < 5 and not st.session_state.correct:
+            # Guessing section
+            st.write(f"Round {st.session_state.round + 1} of 5")
+            guess = st.selectbox("Guess the Country:", [country for country in countries])
+            if st.button("Submit Guess"):
+                st.session_state.round += 1
+                if guess == selected_country:
+                    st.session_state.correct = True
+                else:
+                    guessed_country_data = tfc_data[tfc_data['Country'] == guess]
+                    guessed_country_data = guessed_country_data.set_index('Product').reindex(tfc_country_data['Product']).fillna(0)
+                    guessed_country_data['2021'] = guessed_country_data['2021'].replace(np.nan, 0)
+                    tfc_country_data = tfc_country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
 
-            # Display horizontal bar chart with differences sorted by absolute difference
-            distance_data = pd.DataFrame({
-                'Product': guessed_country_data.index,
-                'Difference (%)': share_difference
-            }).reset_index(drop=True).sort_values(by='Difference (%)', ascending=False, key=abs)
+                    guessed_share = guessed_country_data['2021'] / guessed_country_data['2021'].sum()
+                    correct_share = tfc_country_data['2021'] / tfc_country_data['2021'].sum()
+                    share_difference = (guessed_share - correct_share) * 100
 
-            fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference per Product (%)",
-                                  color='Product', color_discrete_map=color_palette, orientation='h')
-            fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
-            st.plotly_chart(fig_distance)
+                    distance = share_difference.abs().mean()
+                    st.session_state.answers.append({
+                        'guess': guess,
+                        'distance': distance
+                    })
 
-            # Generate explanations for each product
-            explanations = []
-            for _, row in distance_data.iterrows():
-                product = row['Product']
-                diff = row['Difference (%)']
-                if diff != 0:
-                    if diff > 0:
-                        explanation = f"The country you selected has a share of **{product}** in Production that is **{abs(diff):.2f}% higher** than the target country."
-                        if abs(diff) < 5:
-                            explanation += " You were very close on this product."
-                        elif 5 <= abs(diff) < 15:
-                            explanation += " You are looking for a country that produces slightly more of this product."
-                        elif 15 <= abs(diff) < 30:
-                            explanation += " You are looking for a country that produces more of this product."
-                        else:
-                            explanation += " You are looking for a country that produces much more of this product."
-                    else:
-                        explanation = f"The country you selected has a share of **{product}** in Production that is **{abs(diff):.2f}% lower** than the target country."
-                        if abs(diff) < 5:
-                            explanation += " You were very close on this product."
-                        elif 5 <= abs(diff) < 15:
-                            explanation += " You are looking for a country that produces slightly less of this product."
-                        elif 15 <= abs(diff) < 30:
-                            explanation += " You are looking for a country that produces less of this product."
-                        else:
-                            explanation += " You are looking for a country that produces much less of this product."
-                    explanations.append((diff, explanation, product))
+                    st.write("Incorrect Guess!")
+                    st.write(f"Shares for {guess} vs Correct Shares:")
 
-            # Sort explanations by absolute difference in descending order
-            explanations.sort(key=lambda x: abs(x[0]), reverse=True)
+                    st.markdown("""
+                    The bar chart below shows the percentage difference for each product between your guessed country and the correct country. This will help you understand how close your guess was and refine your next guess.
+                    """)
 
-            with st.expander("Detailed Differences", expanded=False):
-                for _, explanation, product in explanations:
-                    product_color = color_palette[product]
-                    st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
+                    # Display horizontal bar chart with differences sorted by absolute difference
+                    distance_data = pd.DataFrame({
+                        'Product': guessed_country_data.index,
+                        'Difference (%)': share_difference
+                    }).reset_index(drop=True).sort_values(by='Difference (%)', ascending=False, key=abs)
+
+                    fig_distance = px.bar(distance_data, y='Product', x='Difference (%)', title="Difference per Product (%)",
+                                          color='Product', color_discrete_map=color_palette, orientation='h')
+                    fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
+                    st.plotly_chart(fig_distance)
+
+                    # Generate explanations for each product.
+                    explanations = []
+                    for _, row in distance_data.iterrows():
+                        product = row['Product']
+                        diff = row['Difference (%)']
+                        if diff != 0:
+                            if diff > 0:
+                                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
+                                if abs(diff) < 5:
+                                    explanation += " You were very close on this product."
+                                elif 5 <= abs(diff) < 15:
+                                    explanation += " You are looking for a country that consumes slightly more of this product."
+                                elif 15 <= abs(diff) < 30:
+                                    explanation += " You are looking for a country that consumes more of this product."
+                                else:
+                                    explanation += " You are looking for a country that consumes much more of this product."
+                            else:
+                                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
+                                if abs(diff) < 5:
+                                    explanation += " You were very close on this product."
+                                elif 5 <= abs(diff) < 15:
+                                    explanation += " You are looking for a country that consumes slightly less of this product."
+                                elif 15 <= abs(diff) < 30:
+                                    explanation += " You are looking for a country that consumes less of this product."
+                                else:
+                                    explanation += " You are looking for a country that consumes much less of this product."
+                            explanations.append((diff, explanation, product))
+
+                    # Sort explanations by absolute difference in descending order
+                    explanations.sort(key=lambda x: abs(x[0]), reverse=True)
+
+                    with st.expander("Detailed Differences", expanded=False):
+                        for _, explanation, product in explanations:
+                            product_color = color_palette[product]
+                            st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
 
         if st.session_state.round == 5 or st.session_state.correct:
             if st.session_state.correct:
