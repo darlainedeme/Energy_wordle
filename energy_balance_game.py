@@ -31,34 +31,35 @@ if 'answers' not in st.session_state:
 
 # Title and description
 st.title("Energy Mix Guessing Game")
-st.markdown("""
-Welcome to the Energy Mix Guessing Game! This game is based on the **World Energy Balances 2023 Highlights** from the International Energy Agency (IEA).
 
----
+with st.expander("About the Data", expanded=True):
+    st.markdown("""
+    The World Energy Balances online data service contains energy balances for 156 countries and 35 regional aggregates. 
+    The figures are expressed in thousand tonnes of oil equivalent (ktoe) and in terajoules. Conversion factors used to calculate energy balances and indicators 
+    (including GDP, population, industrial production index and ratios calculated with the energy data) are also provided. The database includes transparent notes 
+    on methodologies and sources for country-level data. In general, the data are available from 1971 (1960 for OECD countries) to 2021. Preliminary 2022 data are 
+    available for select countries, products, and flows. This service is updated twice a year with progressively broader geographical coverage: in April and July, 
+    the final edition with global data for year-2.
 
-### About the Data
-The World Energy Balances online data service contains energy balances for 156 countries and 35 regional aggregates. The figures are expressed in thousand tonnes of oil equivalent (ktoe) and in terajoules. Conversion factors used to calculate energy balances and indicators (including GDP, population, industrial production index and ratios calculated with the energy data) are also provided. The database includes transparent notes on methodologies and sources for country-level data. In general, the data are available from 1971 (1960 for OECD countries) to 2021. Preliminary 2022 data are available for select countries, products, and flows. This service is updated twice a year with progressively broader geographical coverage: in April and July, the final edition with global data for year-2.
+    Note: This game is based on the IEA family countries, which include members, accession, and association countries.
 
-Note: This game is based on the IEA family countries, which include members, accession, and association countries.
+    Source: [IEA World Energy Balances](https://www.iea.org/data-and-statistics/data-product/world-energy-balances#energy-balances)
+    """)
 
-Source: [IEA World Energy Balances](https://www.iea.org/data-and-statistics/data-product/world-energy-balances#energy-balances)
-
----
-
-### How to Play
-1. Each day, a specific country's energy mix data will be selected. Analyze the treemap and the total value of all products for clues about the country's energy mix.
-2. You have 5 attempts to guess the country correctly.
-3. Enter your guess in the dropdown menu and click "Submit Guess".
-4. If your guess is incorrect, the game will show you the difference in shares between your guess and the correct country using a bar chart. The default flow is "Production (PJ)" and differences should also apply to the "Total Final Consumption (PJ)" values.
-5. The bar chart displays the percentage difference for each product, helping you refine your next guess.
-6. Your previous guesses will be shown on the sidebar, color-coded based on their accuracy: 
-   - Green for close (average share difference < 5%)
-   - Yellow for moderate (average share difference between 5% and 15%)
-   - Red for far (average share difference > 15%)
-7. The game ends when you guess the correct country or use all 5 attempts. Good luck!
-
----
-""")
+with st.expander("How to Play", expanded=True):
+    st.markdown("""
+    ### How to Play
+    1. Each day, a specific country's energy mix data will be selected. Analyze the treemap and the total value of all products for clues about the country's energy mix.
+    2. You have 5 attempts to guess the country correctly.
+    3. Enter your guess in the dropdown menu and click "Submit Guess".
+    4. If your guess is incorrect, the game will show you the difference in shares between your guess and the correct country using a bar chart. The default flow is "Production (PJ)" and differences should also apply to the "Total Final Consumption (PJ)" values.
+    5. The bar chart displays the percentage difference for each product, helping you refine your next guess.
+    6. Your previous guesses will be shown on the sidebar, color-coded based on their accuracy: 
+       - Green for close (average share difference < 5%)
+       - Yellow for moderate (average share difference between 5% and 15%)
+       - Red for far (average share difference > 15%)
+    7. The game ends when you guess the correct country or use all 5 attempts. Good luck!
+    """)
 
 # Set default flow
 default_flow = "Production (PJ)"
