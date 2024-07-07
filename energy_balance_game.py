@@ -63,7 +63,8 @@ with st.expander("How to Play", expanded=True):
        - Green for close (average share difference < 5%)
        - Yellow for moderate (average share difference between 5% and 15%)
        - Red for far (average share difference > 15%)
-    7. The game ends when you guess the correct country or use all 5 attempts. Good luck!
+    7. If you reach the 4th attempt, you will have the possibility to ask for a hint. This hint will show the distances in kilometers between the countries you have selected and the target country. The hint stays active until the end of the game.
+    8. The game ends when you guess the correct country or use all 5 attempts. Good luck!
     """)
 
 # Set default flow
@@ -185,8 +186,8 @@ if st.button("Submit Guess"):
                 product_color = color_palette[product]
                 st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
 
-        # Offer hint if on the 4th or 5th attempt and hint not yet used
-        if (st.session_state.round == 4 or st.session_state.round == 5) and not st.session_state.hints_used:
+        # Offer hint if on the 3rd, 4th, or 5th attempt and hint not yet used
+        if (st.session_state.round >= 3 and st.session_state.round <= 5) and not st.session_state.hints_used:
             if st.button("Use Hint"):
                 st.session_state.hints_used = True
                 hint_message = "Distance to the correct country from your guesses:\n"
@@ -204,7 +205,7 @@ if st.button("Submit Guess"):
         if st.session_state.correct:
             st.success(f"Congratulations! You guessed the correct country: {selected_country}")
         else:
-            st.error(f"I failed at today's energy wordle, can you make it?")
+            st.error(f"Game Over! The correct country was: {selected_country}")
             st.write("Your guesses and distances were:")
             st.table(pd.DataFrame(st.session_state.answers))
         
