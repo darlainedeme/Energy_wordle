@@ -147,7 +147,7 @@ if st.button("Submit Guess"):
         fig_distance.update_layout(xaxis_title=None, yaxis_title=None)
         st.plotly_chart(fig_distance)
         st.write(f"Average share difference: {distance:.2f}%")
-
+        
         # Generate explanations for each product
         explanations = []
         for _, row in distance_data.iterrows():
@@ -157,15 +157,14 @@ if st.button("Submit Guess"):
                 explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
             else:
                 explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
-            explanations.append((diff, explanation))
+            explanations.append((diff, explanation, product))
 
         # Sort explanations by absolute difference in descending order
         explanations.sort(key=lambda x: abs(x[0]), reverse=True)
 
         st.markdown("#### Detailed Differences:")
-        for _, explanation in explanations:
-            product_name = explanation.split("**")[1]
-            product_color = color_palette[distance_data[distance_data['Product'] == product_name].index[0] % len(color_palette)]
+        for _, explanation, product in explanations:
+            product_color = color_palette[list(distance_data['Product']).index(product) % len(color_palette)]
             st.markdown(f"<span style='color:{product_color}'>{explanation}</span>", unsafe_allow_html=True)
 
     if st.session_state.round == 5 or st.session_state.correct:
