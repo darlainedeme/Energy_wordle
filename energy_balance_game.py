@@ -236,11 +236,8 @@ def main_game():
 def explore_results():
     st.title("Explore the Results")
 
+    # Collect involved countries
     countries_involved = [st.session_state.selected_country] + [answer['guess'] for answer in reversed(st.session_state.answers) if answer['guess'] != st.session_state.selected_country]
-
-    # Add an empty bar for visual separation
-    empty_bar = pd.DataFrame({"Country": [""]})
-    countries_involved.insert(1, "")
 
     # Define the color palette
     color_palette = {
@@ -255,6 +252,12 @@ def explore_results():
         "Fossil fuels": "#708090",
         "Renewable sources": "#00FA9A"
     }
+    
+    # Add an empty bar for visual separation
+    countries_involved.insert(1, "")
+    
+    # Check the order of countries involved
+    st.write("Countries involved (order):", countries_involved)
 
     # Dropdown menu to select flow for final charts
     selected_flow_final = st.selectbox(
@@ -269,6 +272,9 @@ def explore_results():
     # Prepare data for final charts
     final_chart_data = final_filtered_data[final_filtered_data['Country'].isin(countries_involved)]
     final_chart_data['Country'] = pd.Categorical(final_chart_data['Country'], categories=countries_involved, ordered=True)
+
+    # Verify the order in final_chart_data
+    st.write(final_chart_data[['Country', '2021']])
 
     # Stacked bar chart for total values
     fig_stacked = px.bar(final_chart_data, x='Country', y='2021', color='Product', title="Total Values by Country",
