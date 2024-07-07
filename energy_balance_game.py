@@ -257,8 +257,24 @@ def main_game():
                         if diff != 0:
                             if diff > 0:
                                 explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
+                                if abs(diff) < 5:
+                                    explanation += " You were very close on this product."
+                                elif 5 <= abs(diff) < 15:
+                                    explanation += " You are looking for a country that consumes slightly more of this product."
+                                elif 15 <= abs(diff) < 30:
+                                    explanation += " You are looking for a country that consumes more of this product."
+                                else:
+                                    explanation += " You are looking for a country that consumes much more of this product."
                             else:
                                 explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
+                                if abs(diff) < 5:
+                                    explanation += " You were very close on this product."
+                                elif 5 <= abs(diff) < 15:
+                                    explanation += " You are looking for a country that consumes slightly less of this product."
+                                elif 15 <= abs(diff) < 30:
+                                    explanation += " You are looking for a country that consumes less of this product."
+                                else:
+                                    explanation += " You are looking for a country that consumes much less of this product."
                             explanations.append((diff, explanation, product))
 
                     # Sort explanations by absolute difference in descending order
