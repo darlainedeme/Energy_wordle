@@ -320,7 +320,7 @@ else:
     main_game()
 
 # Sidebar to display guessed countries and distances with colored squares
-st.sidebar.header("Guessed Countries and Distances")
+st.sidebar.header("Guessed Countries")
 if st.session_state.answers:
     for answer in st.session_state.answers:
         distance = answer['distance']
