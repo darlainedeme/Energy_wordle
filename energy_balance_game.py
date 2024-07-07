@@ -69,13 +69,13 @@ selected_flow = st.selectbox("Select a Flow to investigate:", flows, index=list(
 # Filter data by the selected flow
 filtered_data = energy_data[energy_data['Flow'] == selected_flow]
 
-# Filter data for production only
-production_data = energy_data[energy_data['Flow'] == "Production (PJ)"]
+# Filter data for total final consumption only
+tfc_data = energy_data[energy_data['Flow'] == "Total Final Consumption (PJ)"]
 
 # Selected country and filtering data
 selected_country = st.session_state.selected_country
 country_data = filtered_data[filtered_data['Country'] == selected_country]
-production_country_data = production_data[production_data['Country'] == selected_country]
+tfc_country_data = tfc_data[tfc_data['Country'] == selected_country]
 
 # Determine the unit of measure based on the selected flow
 if selected_flow == "Electricity output (GWh)":
@@ -114,13 +114,13 @@ if st.button("Submit Guess"):
     if guess == selected_country:
         st.session_state.correct = True
     else:
-        guessed_country_data = production_data[production_data['Country'] == guess]
-        guessed_country_data = guessed_country_data.set_index('Product').reindex(production_country_data['Product']).fillna(0)
+        guessed_country_data = tfc_data[tfc_data['Country'] == guess]
+        guessed_country_data = guessed_country_data.set_index('Product').reindex(tfc_country_data['Product']).fillna(0)
         guessed_country_data['2021'] = guessed_country_data['2021'].replace(np.nan, 0)
-        production_country_data = production_country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
+        tfc_country_data = tfc_country_data.set_index('Product').reindex(guessed_country_data.index).fillna(0)
         
         guessed_share = guessed_country_data['2021'] / guessed_country_data['2021'].sum()
-        correct_share = production_country_data['2021'] / production_country_data['2021'].sum()
+        correct_share = tfc_country_data['2021'] / tfc_country_data['2021'].sum()
         share_difference = (guessed_share - correct_share) * 100
         
         distance = share_difference.abs().mean()
@@ -154,9 +154,9 @@ if st.button("Submit Guess"):
             product = row['Product']
             diff = row['Difference (%)']
             if diff > 0:
-                explanation = f"The country you selected has a share of **{product}** that is **{abs(diff):.2f}% higher** than the target country."
+                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
             else:
-                explanation = f"The country you selected has a share of **{product}** that is **{abs(diff):.2f}% lower** than the target country."
+                explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
             explanations.append(explanation)
 
         st.markdown("#### Detailed Differences:")
@@ -217,3 +217,4 @@ if st.session_state.answers:
 
 st.sidebar.markdown('---')
 st.sidebar.markdown("Developed by [Darlain Edeme](https://www.linkedin.com/in/darlain-edeme/)")
+
