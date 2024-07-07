@@ -155,7 +155,7 @@ if st.button("Submit Guess"):
             diff = row['Difference (%)']
             if diff > 0:
                 explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% higher** than the target country."
-            else:
+            elif diff > 0:
                 explanation = f"The country you selected has a share of **{product}** in TFC that is **{abs(diff):.2f}% lower** than the target country."
             explanations.append((diff, explanation, product))
 
