@@ -9,11 +9,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 
+st.write(st.secrets)
+
+
 # Load secrets
 smtp_user = st.secrets["smtp_user"]
 smtp_password = st.secrets["smtp_password"]
 
-st.write(st.secrets)
 
 # Debugging code to print the environment variables (remove or comment out before deploying)
 st.write(f"smtp_user: {smtp_user}")
