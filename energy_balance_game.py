@@ -13,6 +13,8 @@ from datetime import datetime
 smtp_user = st.secrets["smtp_user"]
 smtp_password = st.secrets["smtp_password"]
 
+st.write(st.secrets)
+
 # Debugging code to print the environment variables (remove or comment out before deploying)
 st.write(f"smtp_user: {smtp_user}")
 st.write(f"smtp_password: {smtp_password}")
