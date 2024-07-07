@@ -9,6 +9,18 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 
+# CSS to scale the app content
+st.markdown(
+    """
+    <style>
+    body {
+        zoom: 1.2; /* Adjust the zoom level as needed */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Load secrets
 smtp_user = st.secrets["smtp_user"]
 smtp_password = st.secrets["smtp_password"]
