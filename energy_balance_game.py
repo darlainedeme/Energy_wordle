@@ -138,7 +138,7 @@ def main_game():
         with st.expander("How to Play", expanded=True):
             st.markdown("""
             ### How to Play
-            1. Each week, a specific country's energy mix data will be selected. Analyze the treemap and the total value of all products for clues about the country's energy mix.
+            1. Each week, a specific country's energy balance data will be selected. Analyze the treemap and the total value of all products for clues about the country's energy mix.
             2. You have 5 attempts to guess the country correctly.
             3. Enter your guess in the dropdown menu and click "Submit Guess".
             4. If your guess is incorrect, the game will show you the difference in shares between your guess and the correct country using a bar chart. The default flow is "Production (PJ)" and differences should also apply to the "Total Final Consumption (PJ)" values.
